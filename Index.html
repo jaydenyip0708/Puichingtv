@@ -1,0 +1,2910 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <base target="_top">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <!-- Choices.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #0f172a;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+    }
+
+    html, body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Header 頂欄  */
+    .app-header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    
+    .brand-logo {
+      height: 28px;
+      width: 28px;
+      min-width: 28px;
+      flex: 0 0 28px;
+      object-fit: contain;
+      display: block;
+    }
+    .brand-fallback {
+      display: none;
+      height: 28px;
+      width: 28px;
+      min-width: 28px;
+      border-radius: 6px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 卡片與容器  */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.82rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      border-radius: var(--radius-md);
+      font-weight: 500;
+    }
+    .btn-primary:hover, .btn-primary:active {
+      background-color: #334155;
+      border-color: #334155;
+    }
+
+    /* Choices.js 下拉框  Touch 優化  */
+    .choices__inner {
+      min-height: 42px;
+      padding: 5px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid #cbd5e1;
+      background-color: #fff;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+    }
+    .choices__input {
+      font-size: 0.9rem;
+      background-color: transparent;
+      margin-bottom: 0;
+    }
+
+    /* 進度標籤  Badge */
+    .status-badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    
+    .status-todo { background-color: #fef3c7; color: #92400e; }
+    .status-doing { background-color: #dbeafe; color: #1e40af; }
+    .status-review { background-color: #f3e8ff; color: #6b21a8; }
+    .status-publish { background-color: #ffedd5; color: #9a3412; }
+    .status-done { background-color: #dcfce7; color: #166534; }
+
+    .version-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+
+    /* 月曆優化  */
+    #calendar {
+      max-width: 100%;
+      min-height: 480px;
+    }
+    
+    .fc {
+      --fc-border-color: #f1f5f9;
+    }
+
+    .fc .fc-toolbar-title {
+      font-size: 1.05rem !important;
+      font-weight: 700 !important;
+      color: #0f172a;
+    }
+
+    .fc .fc-button-primary {
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #334155 !important;
+      border-radius: 8px !important;
+      padding: 6px 12px !important;
+      font-size: 0.8rem !important;
+      font-weight: 600 !important;
+    }
+
+    .fc .fc-col-header-cell-cushion {
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      color: #64748b;
+      text-decoration: none !important;
+    }
+
+    .fc .fc-daygrid-day-number {
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      color: #475569;
+      padding: 4px !important;
+      text-decoration: none !important;
+    }
+
+    .fc .fc-day-today {
+      background-color: #f0f9ff !important;
+    }
+
+    .fc-event {
+      cursor: pointer;
+      border: none !important;
+      padding: 4px 6px !important;
+      font-size: 0.72rem !important;
+      font-weight: 600 !important;
+      border-radius: 6px !important;
+      margin-bottom: 2px !important;
+    }
+
+    .nav-pills .nav-link {
+      color: var(--text-muted);
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .nav-pills .nav-link.active {
+      background-color: var(--primary-color);
+      color: #ffffff;
+    }
+
+    .filter-box {
+      background-color: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    /* 手機端專屬響應式與字型優化  */
+    @media (max-width: 768px) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+
+      .app-header {
+        padding: 8px 10px;
+      }
+      
+      /* 防止標題折行  */
+      .header-title-text {
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      .btn-refresh-mobile {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        font-weight: 400 !important;
+        padding: 2px 6px !important;
+        letter-spacing: 0;
+      }
+
+      #currentUserDisplay {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        font-weight: 400 !important;
+        padding: 3px 6px !important;
+        white-space: nowrap;
+      }
+
+      .brand-logo, .brand-fallback {
+        height: 24px;
+        width: 24px;
+        min-width: 24px;
+        flex: 0 0 24px;
+      }
+
+      .mobile-project-card {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      }
+
+      .mobile-version-box {
+        background-color: #f8fafc;
+        border: 1px solid #edf2f7;
+        border-radius: var(--radius-md);
+        padding: 10px;
+      }
+
+      .modal-dialog {
+        margin: 0;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .modal-content {
+        border-radius: 20px 20px 0 0 !important;
+        max-height: 88vh;
+        overflow-y: auto;
+      }
+
+      .fc .fc-toolbar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 0.75rem !important;
+      }
+      .fc .fc-toolbar-title { font-size: 0.92rem !important; }
+      .fc .fc-button { padding: 4px 8px !important; font-size: 0.75rem !important; }
+      #calendar { min-height: 420px; }
+    }
+
+    .admin-tabs { overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
+    .admin-tabs .btn { white-space: nowrap; flex: 0 0 auto; }
+    .admin-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #fff; width: 100%; max-width: 100%; box-sizing: border-box; }
+    .admin-card .meta { font-size: 13px; color: #334155; overflow-wrap: anywhere; word-break: break-word; white-space: normal; line-height: 1.45; }
+    .admin-desktop-only { display: none; }
+    .admin-mobile-only { display: block; width: 100%; }
+    @media (min-width: 992px) {
+      .admin-desktop-only { display: block; }
+      .admin-mobile-only { display: none; }
+    }
+    @media (max-width: 991px) {
+      #adminPanel .card { padding: 12px !important; }
+      #adminPanel, #adminSheetTable, #adminProjectCards { overflow-x: hidden; max-width: 100%; }
+    }
+
+    /* 全螢幕載入遮罩 */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(248, 250, 252, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      pointer-events: all;
+    }
+    #loadingOverlay.hidden {
+      display: none;
+    }
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #0f172a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .loading-sub {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+
+    /* ===== 專業後台樣式 ===== */
+    #adminPanel {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    #adminPanel .card {
+      border: none;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+      border-radius: 16px;
+    }
+    #adminPanel .admin-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    #adminPanel .admin-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.3px;
+      color: #0f172a;
+    }
+    #adminPanel .admin-subtitle {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin: 4px 0 0;
+    }
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 992px) {
+      .admin-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    .admin-stat-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-stat-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent, #0f172a);
+    }
+    .admin-stat-card .label {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .admin-stat-card .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.1;
+      margin-top: 4px;
+    }
+    .admin-stat-card.accent-blue { --accent: #3b82f6; }
+    .admin-stat-card.accent-purple { --accent: #8b5cf6; }
+    .admin-stat-card.accent-green { --accent: #22c55e; }
+    .admin-stat-card.accent-amber { --accent: #f59e0b; }
+
+    .admin-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 4px;
+      background: #f1f5f9;
+      border-radius: 12px;
+    }
+    .admin-tabs .btn {
+      border: none !important;
+      border-radius: 8px !important;
+      font-weight: 600;
+      font-size: 0.82rem;
+      padding: 8px 16px;
+      background: transparent;
+      color: #475569;
+      transition: all 0.15s ease;
+    }
+    .admin-tabs .btn:hover {
+      background: rgba(255,255,255,0.6);
+      color: #0f172a;
+    }
+    .admin-tabs .btn.btn-dark,
+    .admin-tabs .btn.active {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .admin-search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .admin-search-bar input {
+      flex: 1;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      border: 1px solid #e2e8f0;
+      padding: 10px 14px;
+      background: #fff;
+    }
+    .admin-search-bar input:focus {
+      border-color: #0f172a;
+      box-shadow: 0 0 0 3px rgba(15,23,42,0.08);
+      outline: none;
+    }
+    #adminPanel .table {
+      font-size: 0.875rem;
+    }
+    #adminPanel .table thead th {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 10px 12px;
+      background: #fafbfc;
+    }
+    #adminPanel .table tbody td {
+      padding: 12px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    #adminTableBody tr:hover {
+      background-color: #f8fafc;
+    }
+    .admin-project-title {
+      font-weight: 600;
+      color: #0f172a;
+      font-size: 0.9rem;
+    }
+    .admin-category-pill {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #e2e8f0;
+      color: #334155;
+      margin-top: 4px;
+    }
+    .admin-action-btns .btn {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .admin-mobile-only .admin-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    #adminSheetTable {
+      font-size: 0.82rem;
+    }
+    #adminSheetTable th {
+      background: #fafbfc;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .btn-admin-primary {
+      background: #0f172a;
+      border-color: #0f172a;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .btn-admin-primary:hover {
+      background: #334155;
+      border-color: #334155;
+    }
+
+
+    /* ===== 手機底部導覽 ===== */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: auto;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      z-index: 1030;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .bottom-nav-inner {
+      display: flex;
+      height: 52px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .bottom-nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 6px 0;
+      position: relative;
+      transition: color 0.2s ease;
+    }
+    .bottom-nav-btn .nav-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+    .bottom-nav-btn .nav-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .bottom-nav-btn.active {
+      color: #0f172a;
+    }
+    .bottom-nav-btn.active .nav-icon {
+      transform: translateY(-2px);
+    }
+    .bottom-nav-btn.active::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      background: #0f172a;
+      border-radius: 0 0 3px 3px;
+    }
+    .bottom-nav-btn:active .nav-icon {
+      transform: scale(0.9);
+    }
+    @media (max-width: 991.98px) {
+      .bottom-nav { display: block; }
+      body { padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px)); }
+      #viewTabs { display: none !important; }
+      .container-fluid.pb-5 { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important; }
+    }
+
+    /* ===== 電腦左右面板收合 ===== */
+    .panel-toggle-bar {
+      display: none;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    @media (min-width: 992px) {
+      .panel-toggle-bar { display: flex; }
+    }
+    .panel-toggle-btn {
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 4px 10px;
+    }
+    #leftPanel.collapsed {
+      display: none !important;
+    }
+    #rightPanel.collapsed {
+      display: none !important;
+    }
+    #mainRow.left-hidden #rightPanel {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    #mainRow.right-hidden #leftPanel {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    /* 後台進入動畫 */
+    #adminPanel {
+      animation: adminFadeIn 0.25s ease-out;
+    }
+    @keyframes adminFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .bottom-nav-btn.active {
+      color: #0f172a !important;
+    }
+    .bottom-nav-btn.active .nav-icon {
+      transform: translateY(-2px);
+    }
+    .bottom-nav-btn.active::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 3px;
+      background: #0f172a;
+      border-radius: 0 0 3px 3px;
+    }
+
+    .admin-stat-card[onclick] {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .admin-stat-card[onclick]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    /* 帳號人頭 */
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 4px 12px 4px 4px;
+    }
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .user-avatar svg {
+      display: block;
+    }
+    .user-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #0f172a;
+      white-space: nowrap;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @media (max-width: 576px) {
+      .user-name { max-width: 80px; font-size: 0.75rem; }
+      .user-avatar { width: 24px; height: 24px; font-size: 11px; }
+    }
+
+    .fc-arrow-hover {
+      background-color: #0f172a !important;
+      color: #fff !important;
+      transform: scale(1.1);
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 16px 12px 24px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      letter-spacing: 0.3px;
+    }
+    @media (max-width: 991.98px) {
+      .app-footer { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+    }
+
+    /* 拖曳邊緣提示 */
+    .cal-edge-zone {
+      display: none;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 70px;
+      height: 180px;
+      background: rgba(147, 197, 253, 0.45);
+      z-index: 20;
+      pointer-events: none;
+    }
+    .cal-edge-zone.left {
+      left: 0;
+      border-radius: 0 90px 90px 0;
+    }
+    .cal-edge-zone.right {
+      right: 0;
+      border-radius: 90px 0 0 90px;
+    }
+    .cal-edge-zone.active {
+      display: block;
+    }
+    #calendar {
+      position: relative;
+    }
+    /* 版權 */
+    .app-footer {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #94a3b8;
+      padding: 16px 8px 8px;
+    }
+
+    .today-release-box {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+    .today-release-box .tr-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #92400e;
+      margin-bottom: 6px;
+    }
+    .today-release-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 0;
+      border-top: 1px solid #fde68a;
+      cursor: pointer;
+    }
+    .today-release-item:first-of-type { border-top: none; }
+  
+    /* 統一可搜尋多選風格 */
+    .slot-block .choices__inner {
+      min-height: 38px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-size: 0.875rem;
+    }
+    .slot-block .choices__list--multiple .choices__item {
+      background-color: #0f172a;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      margin: 2px;
+    }
+
+  
+    /* 左側滑出面板 */
+    #activityDrawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 420px;
+      max-width: 90vw;
+      height: 100vh;
+      background: #fff;
+      z-index: 1050;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    #activityDrawer.open {
+      transform: translateX(0);
+    }
+    #activityDrawerOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1040;
+      display: none;
+    }
+    #activityDrawerOverlay.show {
+      display: block;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 全螢幕載入遮罩：資料載入完成前封鎖所有操作 -->
+  <div id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">載入中...</div>
+    <div class="loading-sub" id="loadingStatus">正在取得帳號與權限資料</div>
+  </div>
+
+
+  <!-- 側邊選單 -->
+  <div id="sideMenuOverlay" onclick="toggleSideMenu()" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:1040; backdrop-filter:blur(2px);"></div>
+  <div id="sideMenu" style="position:fixed; top:0; left:0; height:100%; width:280px; background:#ffffff; z-index:1050; transform:translateX(-100%); transition:transform 0.28s cubic-bezier(0.4,0,0.2,1); box-shadow:4px 0 24px rgba(15,23,42,0.12); display:flex; flex-direction:column;">
+    <div style="padding:20px 20px 12px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-weight:700; font-size:1.05rem; color:#0f172a;">選單</div>
+        <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Puiching TV</div>
+      </div>
+      <button type="button" class="btn-close" onclick="toggleSideMenu()"></button>
+    </div>
+    <div style="padding:12px 12px; flex:1; overflow-y:auto;">
+      <button type="button" class="side-menu-item" onclick="switchToView('calendar'); toggleSideMenu();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>月曆</span>
+      </button>
+      <button type="button" class="side-menu-item" onclick="switchToView('list'); toggleSideMenu();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        <span>進度</span>
+      </button>
+      <div style="height:1px; background:#f1f5f9; margin:8px 4px;"></div>
+      <button type="button" class="side-menu-item" id="sideAdminBtn" style="display:none;" onclick="openAdminPanel(); toggleSideMenu();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>後台</span>
+      </button>
+      <button type="button" class="side-menu-item" id="sideActivityBtn" style="display:none;" onclick="openActivityPanel(); toggleSideMenu();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>拍攝活動</span>
+      </button>
+    </div>
+  </div>
+  <style>
+    .side-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 4px;
+      border: none;
+      background: transparent;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #334155;
+      text-align: left;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .side-menu-item:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .side-menu-item:active {
+      background: #e2e8f0;
+    }
+    .side-menu-item svg {
+      flex-shrink: 0;
+      color: #64748b;
+    }
+    .side-menu-item:hover svg {
+      color: #0f172a;
+    }
+  </style>
+
+  <!-- Header 頂欄  -->
+  <header class="app-header mb-3">
+    <div class="container-fluid d-flex align-items-center justify-content-between p-0">
+      <div class="d-flex align-items-center gap-1 gap-sm-2">
+        <button type="button" class="btn btn-link p-1" id="hamburgerBtn" onclick="toggleSideMenu()" style="color:#0f172a;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <img src="data:image/png;base64,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" alt="Puiching TV Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="brand-fallback">PT</span>
+        <h6 class="mb-0 fw-bold header-title-text" style="letter-spacing: -0.3px;">Puiching TV 影片管理系統 </h6>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        <div class="user-chip" id="userChip">
+          <div class="user-avatar" id="userAvatar">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span id="currentUserDisplay" class="user-name">連線中...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid pb-5 px-2 px-md-3">
+    <div class="row g-3" id="mainRow">
+      
+      <!-- 左側新增專案表單  -->
+      <div class="col-12 col-lg-3" id="leftPanel">
+        <button class="btn btn-outline-dark btn-sm w-100 d-lg-none mb-2 py-2 fw-bold d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#formCollapse" aria-expanded="false">
+          <span>新增專案項目 </span>
+          <span style="font-size: 0.8rem;">點擊展開  / 收合 </span>
+        </button>
+
+        <div class="collapse d-lg-block" id="formCollapse">
+          <div class="card p-3">
+            <h6 class="fw-bold mb-3 d-none d-lg-block">新增專案項目 </h6>
+            <form id="projectForm" onsubmit="handleSubmit(this)">
+              <div class="mb-2">
+                <label class="form-label mb-1">節目名稱 </label>
+                <input type="text" name="title" id="titleInput" class="form-control form-control-sm" placeholder="紅藍檔案 _開學禮" required style="border-radius: 8px; min-height: 38px;">
+              </div>
+              
+              <div class="mb-2">
+                <label class="form-label mb-1">類別 </label>
+                <select name="category" id="catSelect" class="form-select form-select-sm" required></select>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label mb-1">專案負責人 </label>
+                <select name="leader" id="leaderSelect" class="form-select form-select-sm" required></select>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label mb-1">剪接師 </label>
+                <select name="editor" id="editorSelect" class="form-select form-select-sm" required></select>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label mb-1">專案  Drive 連結 </label>
+                <input type="url" name="driveUrl" class="form-control form-control-sm" placeholder="https://drive.google.com/..." style="border-radius: 8px; min-height: 38px;">
+              </div>
+              
+              <div class="mb-2">
+                <label class="form-label mb-1">IG 版預計上架日 </label>
+                <input type="date" name="targetDate" class="form-control form-control-sm" required style="border-radius: 8px; min-height: 38px;">
+              </div>
+
+              <div class="p-2 my-2 border rounded bg-light">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" id="tdmSwitch" name="needTdm" value="是" onchange="toggleTdmDate(this.checked)">
+                  <label class="form-check-label small fw-semibold" for="tdmSwitch">需要獨立  TDM 版本 </label>
+                </div>
+                <div id="tdmDateGroup" class="mt-2" style="display: none;">
+                  <label class="form-label mb-1 text-muted">TDM 版預計交片日 </label>
+                  <input type="date" name="tdmDate" id="tdmDateInput" class="form-control form-control-sm" style="border-radius: 8px; min-height: 38px;">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label mb-1">備註說明 </label>
+                <textarea name="notes" class="form-control form-control-sm" rows="2" style="border-radius: 8px;"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm w-100 py-2" id="subBtn" style="min-height: 42px;">建立項目 </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側視圖  -->
+      <div class="col-12 col-lg-9" id="rightPanel">
+        <div class="card p-2 p-md-3">
+          
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <ul class="nav nav-pills w-100 w-md-auto d-none" id="viewTabs">
+              <li class="nav-item flex-fill text-center">
+                <button class="nav-link active w-100 py-2 px-3" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-view" type="button" onclick="renderCalendarView()">月曆檢視 </button>
+              </li>
+              <li class="nav-item flex-fill text-center">
+                <button class="nav-link w-100 py-2 px-3" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-view" type="button">進度列表 </button>
+              </li>
+              <li class="nav-item flex-fill text-center" id="adminEntryBtn" style="display:none;">
+                <button class="nav-link w-100 py-2 px-3" type="button" onclick="openAdminPanel()">後台 </button>
+              </li>
+
+            </ul>
+          </div>
+
+          <div class="tab-content">
+            <!-- 月曆視圖  -->
+            <div class="tab-pane fade show active" id="calendar-view">
+              <div id="calendarWrap" style="position:relative;">
+              <div class="cal-edge-zone left" id="edgeLeft"></div>
+              <div class="cal-edge-zone right" id="edgeRight"></div>
+              <div id="calendar"></div>
+            </div>
+            </div>
+
+            <!-- 列表視圖  -->
+            <div class="tab-pane fade" id="list-view">
+              
+              <!-- 篩選工具列  -->
+              <div class="filter-box mb-3">
+                <div class="row g-2 align-items-center">
+                  <div class="col-12 col-md-3">
+                    <input type="text" id="filterKeyword" class="form-control form-control-sm" placeholder="搜尋名稱  / 備註 ..." oninput="applyFilters()" style="border-radius: 8px; min-height: 38px;">
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <select id="filterLeader" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <select id="filterEditor" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-8 col-md-3">
+                    <select id="filterCategory" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-4 col-md-2 text-end">
+                    <button class="btn btn-sm btn-outline-secondary w-100 py-1" onclick="resetFilters()" style="font-size: 0.78rem; border-radius: 8px; min-height: 38px;">重設 </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 電腦版表格  -->
+              <div class="d-none d-md-block table-responsive">
+                <table class="table table-hover align-middle small mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>節目名稱  / 類別 </th>
+                      <th>負責人  / 剪接師 </th>
+                      <th>IG 版本 </th>
+                      <th>TDM 版本 </th>
+                      <th>連結 </th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBodyDesktop">
+                    <tr><td colspan="5" class="text-center text-muted py-4">資料載入中 ...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 手機版卡片容器  -->
+              <div class="d-md-none" id="mobileCardsContainer">
+                <div class="text-center text-muted py-4 small">資料載入中 ...</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 進度更新  Modal -->
+  <div class="modal fade" id="updateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 p-2" style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);">
+        <div class="modal-header border-0 pb-0">
+          <div>
+            <h6 class="modal-title fw-bold" id="modalTitle">修改專案資料與進度 </h6>
+            <small class="text-muted" id="modalSubTitle"></small>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="modalRowIndex">
+          <input type="hidden" id="modalVersionType">
+          
+          <div class="row g-2 mb-2">
+            <div class="col-6">
+              <label class="form-label mb-1">專案負責人 </label>
+              <select id="modalLeader" class="form-select form-select-sm" style="border-radius: 8px; min-height: 38px;"></select>
+            </div>
+            <div class="col-6">
+              <label class="form-label mb-1">剪接師 </label>
+              <select id="modalEditor" class="form-select form-select-sm" style="border-radius: 8px; min-height: 38px;"></select>
+            </div>
+          </div>
+
+          <div class="mb-2" id="modalNormalDateGroup">
+            <label class="form-label mb-1">IG 版預計上架日 </label>
+            <input type="date" id="modalNormalDate" class="form-control form-control-sm" style="border-radius: 8px; min-height: 38px;">
+          </div>
+          <div class="mb-2" id="modalTdmDateGroup" style="display: none;">
+            <label class="form-label mb-1">TDM 版預計交片日 </label>
+            <input type="date" id="modalTdmDate" class="form-control form-control-sm" style="border-radius: 8px; min-height: 38px;">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label mb-1">當前進度選項 </label>
+            <select id="modalStatus" class="form-select form-select-sm" style="border-radius: 8px; min-height: 40px;">
+              <option value="待剪接">待剪接</option>
+              <option value="剪接中">剪接中</option>
+              <option value="審核修片中">審核修片中</option>
+              <option value="待發佈">待發佈</option>
+              <option value="已上架">已上架</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label mb-1">進度備註  / 留言 </label>
+            <textarea id="modalNotes" class="form-control form-control-sm" rows="3" placeholder="註記最新進度 ..." style="border-radius: 8px;"></textarea>
+          </div>
+          <div id="modalDriveLink"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light py-2 w-100 mb-2 d-md-none" data-bs-dismiss="modal" style="border-radius: 8px;">取消 </button>
+          <button type="button" class="btn btn-primary py-2 w-100" id="saveProgressBtn" onclick="saveProgress()" style="border-radius: 8px; min-height: 42px;">儲存變更 </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="adminPanel" class="container-fluid px-2 px-md-3 pb-5" style="display:none;">
+    <div class="card p-3 p-md-4">
+      <div class="admin-header">
+        <div>
+          <h5 class="admin-title">後台管理</h5>
+          <p class="admin-subtitle">專案、成員、類別與紀錄管理</p>
+        </div>
+
+      </div>
+
+      <!-- 今日出片 -->
+      <div id="todayRelease" style="display:none; margin-bottom:14px;"></div>
+
+      <!-- 統計摘要 -->
+      <div class="admin-stats" id="adminStats"></div>
+
+      <!-- 分頁標籤 -->
+      <div class="d-flex flex-wrap gap-1 mb-3 admin-tabs" id="adminTabs">
+        <button class="btn btn-sm btn-dark" data-admin-tab="projects" onclick="switchAdminTab('projects')">專案</button>
+        <button class="btn btn-sm btn-outline-dark" data-admin-tab="revision" onclick="switchAdminTab('revision')">修訂紀錄</button>
+        <button class="btn btn-sm btn-outline-dark" data-admin-tab="login" onclick="switchAdminTab('login')">登入紀錄</button>
+        <button class="btn btn-sm btn-outline-dark" data-admin-tab="manager" onclick="switchAdminTab('manager')">負責人</button>
+        <button class="btn btn-sm btn-outline-dark" data-admin-tab="member" onclick="switchAdminTab('member')">成員</button>
+        <button class="btn btn-sm btn-outline-dark" data-admin-tab="category" onclick="switchAdminTab('category')">類別</button>
+      </div>
+
+      <!-- 專案檢視 -->
+      <div id="adminProjectsView">
+        <div class="admin-search-bar">
+          <input type="text" id="adminSearchKeyword" class="form-control form-control-sm" placeholder="搜尋節目名稱、類別、負責人..." oninput="renderAdminTable()">
+        </div>
+        <div class="admin-desktop-only table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>節目</th>
+                <th>負責人 / 剪接</th>
+                <th>IG 進度</th>
+                <th>TDM</th>
+                <th class="text-end">操作</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+          </table>
+        </div>
+        <div class="admin-mobile-only" id="adminProjectCards"></div>
+      </div>
+
+      <!-- 其他工作表檢視 -->
+      <div id="adminSheetView" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <small class="text-muted" id="adminSheetHint"></small>
+          <button class="btn btn-sm btn-primary" id="adminAddRowBtn" class="btn btn-sm btn-admin-primary" onclick="openSheetRow()">+ 新增一列</button>
+        </div>
+        <div class="table-responsive" id="adminSheetTable"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="adminEditModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 p-2">
+        <div class="modal-header border-0 pb-0"><h6 class="modal-title fw-bold" style="font-size:1.05rem;">編輯專案</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <input type="hidden" id="adminRowIndex">
+          <div class="row g-2">
+            <div class="col-12"><label class="form-label mb-1">節目名稱 </label><input id="adminTitle" class="form-control form-control-sm"></div>
+            <div class="col-md-6"><label class="form-label mb-1">類別 </label><select id="adminCategory" class="form-select form-select-sm"></select></div>
+            <div class="col-md-6"><label class="form-label mb-1">Drive 連結 </label><input id="adminDrive" class="form-control form-control-sm"></div>
+            <div class="col-md-6"><label class="form-label mb-1">負責人 </label><select id="adminLeader" class="form-select form-select-sm"></select></div>
+            <div class="col-md-6"><label class="form-label mb-1">剪接師 </label><select id="adminEditor" class="form-select form-select-sm"></select></div>
+            <div class="col-md-4"><label class="form-label mb-1">IG 進度 </label><select id="adminNormalStatus" class="form-select form-select-sm"><option>待剪接</option><option>剪接中</option><option>審核修片中</option><option>待發佈</option><option>待上架</option><option>已上架</option></select></div>
+            <div class="col-md-4"><label class="form-label mb-1">IG 上架日 </label><input type="date" id="adminNormalDate" class="form-control form-control-sm"></div>
+            <div class="col-md-4"><label class="form-label mb-1">需要  TDM</label><select id="adminNeedTdm" class="form-select form-select-sm"><option value="是">是</option><option value="否">否</option></select></div>
+            <div class="col-md-6"><label class="form-label mb-1">TDM 進度 </label><select id="adminTdmStatus" class="form-select form-select-sm"><option>待剪接</option><option>剪接中</option><option>審核修片中</option><option>待發佈</option><option>待上架</option><option>已上架</option><option>不需要</option></select></div>
+            <div class="col-md-6"><label class="form-label mb-1">TDM 交片日 </label><input type="date" id="adminTdmDate" class="form-control form-control-sm"></div>
+            <div class="col-12"><label class="form-label mb-1">備註 </label><textarea id="adminNotes" class="form-control form-control-sm" rows="2"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0"><button class="btn btn-primary w-100 py-2" style="border-radius:8px; font-weight:600;" onclick="saveAdminEdit()">儲存變更</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="sheetRowModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 p-2">
+        <div class="modal-header border-0"><h6 class="modal-title fw-bold" id="sheetRowTitle">編輯列 </h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body" id="sheetRowFields"></div>
+        <div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="saveSheetRow()">儲存 </button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let updateModal;
+    let adminEditModal;
+    let sheetRowModal;
+    let currentUserIsAdmin = false;
+    let adminSheetKey = "projects";
+    let adminSheetCache = null;
+    let editingSheetRow = 0;
+    let calendar;
+    let choicesInstances = {};
+    let globalProjectsData = [];
+    let managersList = [];
+    let membersList = [];
+
+    const statusConfig = {
+      '待剪接':     { class: 'status-todo' },
+      '剪接中':     { class: 'status-doing' },
+      '審核修片中': { class: 'status-review' },
+      '待發佈':     { class: 'status-publish' },
+      '已上架':     { class: 'status-done' },
+      '待上架':     { class: 'status-publish' }
+    };
+
+    const statusShortMap = {
+      '待剪接':     '待',
+      '剪接中':     '剪',
+      '審核修片中': '審',
+      '待發佈':     '發',
+      '已上架':     '完',
+      '待上架':     '架'
+    };
+
+    function getCategoryColor(category) {
+      var raw = (category || '').trim();
+      var key = raw.replace(/\s+/g, '');  // 移除所有空格再比對
+
+      // 精確匹配優先
+      switch (raw) {
+        case '小城遊記':       return 'rgb(14, 116, 144)';
+        case '培正 Talkshow':
+        case '年少有你':
+        case '走進中華大觀園': return 'rgb(204, 2, 25)';
+        case '紅藍檔案':       return 'rgb(1, 87, 251)';
+        case '校園我 say':
+        case '校園我say':     return 'rgb(100, 116, 139)';
+        case '案件重演':       return 'rgb(135, 62, 35)';
+        case '動力「培」FUN':
+        case '動力 「 培 」 FUN':
+        case '動力「培」FUN': return 'rgb(73, 163, 67)';
+        case '講呢 D':
+        case '講呢D':          return 'rgb(16, 185, 129)';
+        case '1分鐘就有60秒過去':
+        case '1分鐘就有 60秒過去': return 'rgb(245, 158, 11)';
+      }
+
+      // 去掉空格再匹配一次
+      switch (key) {
+        case '小城遊記':       return 'rgb(14, 116, 144)';
+        case '培正Talkshow':
+        case '年少有你':
+        case '走進中華大觀園': return 'rgb(204, 2, 25)';
+        case '紅藍檔案':       return 'rgb(1, 87, 251)';
+        case '校園我say':     return 'rgb(100, 116, 139)';
+        case '案件重演':       return 'rgb(135, 62, 35)';
+        case '動力「培」FUN': return 'rgb(73, 163, 67)';
+        case '講呢D':          return 'rgb(16, 185, 129)';
+        case '1分鐘就有60秒過去': return 'rgb(245, 158, 11)';
+      }
+
+      return 'rgb(48, 45, 44)';  // 預設深灰
+    }
+
+    // ===== 載入狀態管理 =====
+    var pendingLoads = 0;
+    var loadStarted = false;
+
+    function startLoading(message) {
+      pendingLoads++;
+      var overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.classList.remove('hidden');
+      var statusEl = document.getElementById('loadingStatus');
+      if (statusEl && message) statusEl.innerText = message;
+      document.body.style.pointerEvents = 'none';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function finishLoading() {
+      pendingLoads = Math.max(0, pendingLoads - 1);
+      if (pendingLoads <= 0) {
+        var overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.style.pointerEvents = '';
+        document.body.style.overflow = '';
+      }
+    }
+
+    function setLoadingStatus(message) {
+      var statusEl = document.getElementById('loadingStatus');
+      if (statusEl) statusEl.innerText = message;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
+      adminEditModal = new bootstrap.Modal(document.getElementById('adminEditModal'));
+      sheetRowModal = new bootstrap.Modal(document.getElementById('sheetRowModal'));
+
+      initCalendar();
+      startInitialLoad();
+    });
+
+    function startInitialLoad() {
+      if (loadStarted) return;
+      loadStarted = true;
+      setLoadingStatus('正在載入資料...');
+      startLoading('正在載入資料...');
+      google.script.run
+        .withSuccessHandler(function(data) {
+          // 類別
+          if (data.categories) {
+            initSearchableSelect('catSelect', data.categories, '', onCategoryChange);
+            initSearchableSelect('filterCategory', data.categories, '所有節目', applyFilters);
+            var titleEl = document.getElementById("titleInput");
+            if (titleEl && !titleEl._bound) {
+              titleEl.addEventListener("input", onTitleInput);
+              titleEl._bound = true;
+            }
+          }
+          // 成員
+          if (data.members) {
+            managersList = data.members;
+            membersList = data.members;
+            initSearchableSelect('leaderSelect', data.members);
+            initSearchableSelect('filterLeader', data.members, '所有負責人', applyFilters);
+            initSearchableSelect('editorSelect', data.members);
+            initSearchableSelect('filterEditor', data.members, '所有剪接師', applyFilters);
+          }
+          // 專案（當月）
+          if (data.projects) {
+            globalProjectsData = data.projects;
+            applyFilters();
+            renderCalendarEvents(globalProjectsData);
+          }
+          // 帳號
+          if (data.login) {
+            var displayEl = document.getElementById("currentUserDisplay");
+            if (data.login.success && data.login.memberInfo && data.login.memberInfo !== "查無此帳號對應資料") {
+              displayEl.innerText = data.login.memberInfo;
+            } else {
+              displayEl.innerText = "未知成員";
+            }
+          }
+          // 後台權限
+          if (data.admin) {
+            currentUserIsAdmin = !!(data.admin.isAdmin);
+            var btn = document.getElementById("adminEntryBtn");
+            if (btn) btn.style.display = currentUserIsAdmin ? "" : "none";
+            var bottomBtn = document.getElementById("bottomAdminBtn");
+            if (bottomBtn) bottomBtn.style.display = currentUserIsAdmin ? "flex" : "none";
+            var actBtn = document.getElementById("bottomActivityBtn");
+            if (actBtn) actBtn.style.display = currentUserIsAdmin ? "flex" : "none";
+            var leftAct = document.getElementById("leftActivityBtn");
+            if (leftAct) { leftAct.classList.toggle("d-none", !currentUserIsAdmin); leftAct.style.display = currentUserIsAdmin ? "block" : "none"; }
+            var ham = document.getElementById("hamburgerBtn");
+            if (ham) ham.classList.toggle("d-none", !currentUserIsAdmin);
+            var sideAdm = document.getElementById("sideAdminBtn");
+            var sideAct = document.getElementById("sideActivityBtn");
+            if (sideAdm) sideAdm.style.display = currentUserIsAdmin ? "" : "none";
+            if (sideAct) sideAct.style.display = currentUserIsAdmin ? "" : "none";
+          }
+          // 拍攝活動資料（若為 Admin）
+          if (data.activities) {
+            activityData = data.activities;
+          }
+          if (data.adminNames) {
+            window.adminNamesList = data.adminNames;
+          }
+          finishLoading();
+        })
+        .withFailureHandler(function(err) {
+          // 若新函數不存在，回退到原本的多次載入
+          finishLoading();
+          loadStarted = false;
+          loadDropdownOptions();
+          loadData();
+          autoRecordLogin();
+        })
+        .getInitialData();
+    }
+
+    function autoRecordLogin() {
+      startLoading('正在取得帳號資訊...');
+      google.script.run
+        .withSuccessHandler(res => {
+          const displayEl = document.getElementById("currentUserDisplay");
+          const avatarEl = document.getElementById("userAvatar");
+          if (res.success) {
+            if (res.memberInfo && res.memberInfo !== "查無此帳號對應資料") {
+              displayEl.innerText = res.memberInfo;
+              
+            } else {
+              displayEl.innerText = "未知成員";
+              
+            }
+          } else {
+            displayEl.innerText = "連線失敗";
+            
+          }
+          setLoadingStatus('正在檢查後台權限...');
+          refreshAdminButton();
+          finishLoading();
+        })
+        .withFailureHandler(err => {
+          const displayEl = document.getElementById("currentUserDisplay");
+          const avatarEl = document.getElementById("userAvatar");
+          displayEl.innerText = "無法取得";
+          
+          finishLoading();
+        })
+        .recordLogin();
+    }
+
+
+    function refreshAdminButton() {
+      startLoading('正在檢查後台權限...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          currentUserIsAdmin = !!(res && res.isAdmin);
+          var btn = document.getElementById("adminEntryBtn");
+          if (btn) btn.style.display = currentUserIsAdmin ? "" : "none";
+          var bottomBtn = document.getElementById("bottomAdminBtn");
+          if (bottomBtn) bottomBtn.style.display = currentUserIsAdmin ? "flex" : "none";
+            var actBtn = document.getElementById("bottomActivityBtn");
+            if (actBtn) actBtn.style.display = currentUserIsAdmin ? "flex" : "none";
+            var leftAct = document.getElementById("leftActivityBtn");
+            if (leftAct) { leftAct.classList.toggle("d-none", !currentUserIsAdmin); leftAct.style.display = currentUserIsAdmin ? "block" : "none"; }
+            var ham = document.getElementById("hamburgerBtn");
+            if (ham) ham.classList.toggle("d-none", !currentUserIsAdmin);
+            var sideAdm = document.getElementById("sideAdminBtn");
+            var sideAct = document.getElementById("sideActivityBtn");
+            if (sideAdm) sideAdm.style.display = currentUserIsAdmin ? "" : "none";
+            if (sideAct) sideAct.style.display = currentUserIsAdmin ? "" : "none";
+          finishLoading();
+        })
+        .withFailureHandler(function(err) {
+          finishLoading();
+        })
+        .checkAdminAccess();
+    }
+
+
+    function switchAdminTab(key) {
+      adminSheetKey = key;
+      document.querySelectorAll("#adminTabs button").forEach(function(btn) {
+        btn.className = "btn btn-sm " + (btn.getAttribute("data-admin-tab") === key ? "btn-dark" : "btn-outline-dark");
+      });
+      document.getElementById("adminProjectsView").style.display = key === "projects" ? "block" : "none";
+      document.getElementById("adminSheetView").style.display = key === "projects" ? "none" : "block";
+
+      // 控制 「 新增一列 」 按鈕顯示 （ 唯讀工作表隱藏 ） 
+      var addBtn = document.getElementById("adminAddRowBtn");
+      if (addBtn) {
+        addBtn.style.display = (key === "revision" || key === "login") ? "none" : "";
+      }
+
+      if (key === "projects") renderAdminTable();
+      else loadAdminSheet(key);
+    }
+
+    function escAdmin(value) {
+      return String(value || "")
+        .split("&").join("amp;")
+        .split("<").join("lt;")
+        .split(">").join("gt;")
+        .split('"').join("quot;");
+    }
+
+    function loadAdminSheet(key) {
+      document.getElementById("adminSheetTable").innerHTML = '<div class="text-muted small py-3">讀取中 ...</div>';
+      google.script.run.withSuccessHandler(function(res) {
+        if (!res.success) {
+          document.getElementById("adminSheetTable").innerHTML = '<div class="text-danger small">' + escAdmin(res.message) +'</div>';
+          return;
+        }
+        adminSheetCache = res;
+        document.getElementById("adminSheetHint").innerText = res.truncated ? "只顯示前  400 列有內容的資料" : "";
+
+        var isReadonly = res.readonly === true;
+        var actionHeader = isReadonly ? "" : "<th></th>";
+        var head = "<tr>" + res.headers.map(function(h) { return "<th>" + escAdmin(h || "-") + "</th>"; }).join("") + actionHeader + "</tr>";
+
+        var body = res.rows.map(function(row) {
+          var cells = row.values.map(function(cell) { return "<td>" + escAdmin(cell) + "</td>"; }).join("");
+          var actions = isReadonly ? "" : '<td class="text-nowrap"><button class="btn btn-sm btn-outline-dark me-1" onclick="openSheetRow(' + row.rowIndex +')">修改 </button><button class="btn btn-sm btn-outline-danger" onclick="deleteSheetRow(' + row.rowIndex +')">刪除 </button></td>';
+          return "<tr>" + cells + actions + "</tr>";
+        }).join("") || '<tr><td colspan="' + (res.headers.length + (isReadonly ? 0 : 1)) +'" class="text-muted">沒有資料 </td></tr>';
+
+        var cards = res.rows.map(function(row) {
+          var lines = res.headers.map(function(header, index) {
+            return '<div class="meta"><b>' + escAdmin(header || ("欄" + (index + 1))) + '</b>' + escAdmin(row.values[index] || "-") + '</div>';
+          }).join("");
+          var actions = isReadonly ? "" : '<div class="d-flex gap-2 mt-2"><button class="btn btn-sm btn-outline-dark flex-fill" onclick="openSheetRow(' + row.rowIndex +')">修改 </button><button class="btn btn-sm btn-outline-danger flex-fill" onclick="deleteSheetRow(' + row.rowIndex +')">刪除 </button></div>';
+          return '<div class="admin-card">' + lines + actions +'</div>';
+        }).join("") || '<div class="text-muted small">沒有資料 </div>';
+
+        document.getElementById("adminSheetTable").innerHTML = 
+          '<div class="admin-desktop-only"><table class="table table-sm align-middle"><thead class="table-light">' + head +'</thead><tbody>' + body +'</tbody></table></div>' +
+          '<div class="admin-mobile-only">' + cards +'</div>';
+      }).adminListSheet(key);
+    }
+
+    function openSheetRow(rowIndex) {
+      editingSheetRow = rowIndex || 0;
+      var headers = (adminSheetCache && adminSheetCache.headers) || ["內容"];
+      var values = [];
+      if (rowIndex && adminSheetCache) {
+        var found = adminSheetCache.rows.find(function(row) { return row.rowIndex == rowIndex; });
+        values = found ? found.values : [];
+      }
+      document.getElementById("sheetRowTitle").innerText = rowIndex ? "修改第" + rowIndex + " 列" : "新增一列";
+      document.getElementById("sheetRowFields").innerHTML = headers.map(function(header, index) {
+        return '<div class="mb-2"><label class="form-label mb-1">' + escAdmin(header || ("欄" + (index + 1))) + '</label><input class="form-control form-control-sm sheet-field" data-col="' + index +'" value="' + escAdmin(values[index] || "") + '"></div>';
+      }).join("");
+      sheetRowModal.show();
+    }
+
+    function saveSheetRow() {
+      var values = Array.from(document.querySelectorAll(".sheet-field")).map(function(input) { return input.value; });
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) {
+          sheetRowModal.hide();
+          loadAdminSheet(adminSheetKey);
+          if (adminSheetKey === "member" || adminSheetKey === "manager" || adminSheetKey === "category") loadDropdownOptions();
+        }
+      }).adminSaveSheetRow(adminSheetKey, editingSheetRow, values);
+    }
+
+    function deleteSheetRow(rowIndex) {
+      if (!confirm("確定刪除第" + rowIndex + " 列 ？")) return;
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) loadAdminSheet(adminSheetKey);
+      }).adminDeleteSheetRow(adminSheetKey, rowIndex);
+    }
+
+    function openAdminPanel() {
+      if (!currentUserIsAdmin) return;
+      var main = document.querySelector(".container-fluid.pb-5");
+      if (main) main.style.display = "none";
+      var panel = document.getElementById("adminPanel");
+      panel.style.display = "block";
+      panel.style.animation = "none";
+      panel.offsetHeight; // reflow
+      panel.style.animation = "adminFadeIn 0.25s ease-out";
+      window.scrollTo(0, 0);
+      switchAdminTab("projects");
+    }
+
+    function closeAdminPanel() {
+      document.getElementById("adminPanel").style.display = "none";
+      document.querySelector(".container-fluid.pb-5").style.display = "block";
+      if (calendar) setTimeout(function() { calendar.updateSize(); }, 150);
+    }
+
+    function fillAdminSelect(id, items, value) {
+      var el = document.getElementById(id);
+      var list = items.slice();
+      if (value && list.indexOf(value) === -1) list.unshift(value);
+      el.innerHTML = list.map(function(item) { return '<option value="' + item +'">' + item +'</option>'; }).join("");
+      el.value = value || "";
+    }
+
+    function getMonday(d) {
+      var date = new Date(d);
+      date.setHours(0, 0, 0, 0);
+      var day = date.getDay();
+      var diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(date.setDate(diff));
+    }
+
+    function formatYMD(d) {
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, "0");
+      var day = String(d.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + day;
+    }
+
+
+    function renderTodayRelease(items) {
+      var el = document.getElementById("todayRelease");
+      if (!el) return;
+      var today = formatYMD(new Date());
+      var found = items.filter(function(i) {
+        var nd = (i.normalTargetDate || "").substring(0, 10);
+        var td = (i.tdmTargetDate || "").substring(0, 10);
+        return nd === today || (i.needTdm === "是" && td === today);
+      });
+      if (!found.length) {
+        el.style.display = "none";
+        el.innerHTML = "";
+        return;
+      }
+      var rows = found.map(function(item) {
+        var kinds = [];
+        if ((item.normalTargetDate || "").substring(0, 10) === today) kinds.push("IG");
+        if (item.needTdm === "是" && (item.tdmTargetDate || "").substring(0, 10) === today) kinds.push("TDM");
+        return '<div class="today-release-item" onclick="openAdminEdit(' + item.rowIndex + ')">'
+          + '<div><strong>' + escAdmin(item.title) + '</strong>'
+          + '<div class="small text-muted">' + kinds.join(" / ") + ' · ' + escAdmin(item.leader || "-") + '</div></div>'
+          + getAdminBadge(kinds.indexOf("TDM") !== -1 ? item.tdmStatus : item.normalStatus)
+          + '</div>';
+      }).join("");
+      el.innerHTML = '<div class="today-release-box"><div class="tr-title">今日出片</div>' + rows + '</div>';
+      el.style.display = "block";
+    }
+
+    function renderAdminStats(items) {
+      renderTodayRelease(items);
+      var today = new Date();
+      var thisMon = getMonday(today);
+
+      var weeks = [];
+      var accents = ["accent-blue", "accent-purple", "accent-green", "accent-amber"];
+      for (var i = 0; i < 4; i++) {
+        var d = new Date(thisMon);
+        d.setDate(d.getDate() + i * 7);
+        weeks.push({ date: d, accent: accents[i] });
+      }
+
+      var htmlStats = weeks.map(function(w) {
+        var ymd = formatYMD(w.date);
+        var found = items.filter(function(i) {
+          return i.needTdm === "是" && (i.tdmTargetDate || "").substring(0, 10) === ymd;
+        });
+        var has = found.length > 0;
+        var item = has ? found[0] : null;
+        var title = has ? escAdmin(item.title || "有") : "未安排";
+        var statusHtml = has ? getAdminBadge(item.tdmStatus) : '<span class="text-muted small">—</span>';
+        var people = has
+          ? '<div class="small text-muted mt-1">負責人：' + escAdmin(item.leader || "-") + '</div>'
+            + '<div class="small text-muted">剪接：' + escAdmin(item.editor || "-") + '</div>'
+          : '';
+        var extra = found.length > 1 ? '<div class="small text-muted mt-1">共 ' + found.length + ' 條</div>' : '';
+        var click = has ? ' onclick="openAdminEdit(' + item.rowIndex + ')" style="cursor:pointer;"' : '';
+        return '<div class="admin-stat-card ' + w.accent + '"' + click + '>'
+          + '<div class="label">' + ymd + '</div>'
+          + '<div class="value" style="font-size:0.95rem; margin-top:6px;">' + title + '</div>'
+          + '<div class="mt-2">' + statusHtml + '</div>'
+          + people
+          + extra
+          + '</div>';
+      }).join("");
+
+      var el = document.getElementById("adminStats");
+      if (el) el.innerHTML = htmlStats;
+    }
+
+    function getAdminBadge(status) {
+      var cls = getBadgeClass(status);
+      return '<span class="status-badge ' + cls + '">' + escAdmin(status || "-") + '</span>';
+    }
+
+    function renderAdminTable() {
+      var keyword = (document.getElementById("adminSearchKeyword") || {}).value || "";
+      keyword = keyword.toLowerCase().trim();
+      var items = globalProjectsData.filter(function(item) {
+        if (!keyword) return true;
+        var hay = ((item.title || "") + " " + (item.category || "") + " " + (item.leader || "") + " " + (item.editor || "")).toLowerCase();
+        return hay.indexOf(keyword) !== -1;
+      });
+
+      // 按 IG 發佈日由新到舊排序
+      items.sort(function(a, b) {
+        var da = (a.normalTargetDate || "").substring(0, 10);
+        var db = (b.normalTargetDate || "").substring(0, 10);
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return db.localeCompare(da);
+      });
+
+      renderAdminStats(globalProjectsData);
+
+      var body = document.getElementById("adminTableBody");
+      var cards = document.getElementById("adminProjectCards");
+
+      var rows = items.map(function(item) {
+        var tdmText = item.needTdm === "是" ? getAdminBadge(item.tdmStatus) : '<span class="text-muted small">不需要</span>';
+        return '<tr>'
+          + '<td><div class="admin-project-title">' + escAdmin(item.title) + '</div><span class="admin-category-pill">' + escAdmin(item.category || "-") + '</span></td>'
+          + '<td><div>' + escAdmin(item.leader || "-") + '</div><small class="text-muted">剪接：' + escAdmin(item.editor || "-") + '</small></td>'
+          + '<td>' + getAdminBadge(item.normalStatus) + '<div class="text-muted small mt-1">' + escAdmin(item.normalTargetDate || "-") + '</div></td>'
+          + '<td>' + tdmText + (item.needTdm === "是" ? '<div class="text-muted small mt-1">' + escAdmin(item.tdmTargetDate || "-") + '</div>' : '') + '</td>'
+          + '<td class="text-end text-nowrap admin-action-btns"><button class="btn btn-sm btn-outline-secondary me-1" onclick="openAdminEdit(' + item.rowIndex + ')">編輯</button><button class="btn btn-sm btn-outline-danger" onclick="deleteAdminProject(' + item.rowIndex + ')">刪除</button></td>'
+          + '</tr>';
+      }).join("");
+      body.innerHTML = rows || '<tr><td colspan="5" class="text-muted text-center py-3">沒有符合的專案</td></tr>';
+
+      cards.innerHTML = items.map(function(item) {
+        var tdmLine = item.needTdm === "是"
+          ? '<div class="meta">TDM ' + getAdminBadge(item.tdmStatus) + ' / ' + escAdmin(item.tdmTargetDate || "-") + '</div>'
+          : '<div class="meta">TDM 不需要</div>';
+        return '<div class="admin-card">'
+          + '<div class="d-flex justify-content-between align-items-start mb-2">'
+          + '<div><div class="admin-project-title">' + escAdmin(item.title) + '</div><span class="admin-category-pill">' + escAdmin(item.category || "-") + '</span></div>'
+          + '</div>'
+          + '<div class="meta">負責人：' + escAdmin(item.leader || "-") + '</div>'
+          + '<div class="meta">剪接：' + escAdmin(item.editor || "-") + '</div>'
+          + '<div class="meta mb-1">IG ' + getAdminBadge(item.normalStatus) + ' / ' + escAdmin(item.normalTargetDate || "-") + '</div>'
+          + tdmLine
+          + '<div class="meta mb-2">備註：' + escAdmin(item.notes || "-") + '</div>'
+          + '<div class="d-flex gap-2"><button class="btn btn-sm btn-outline-dark flex-fill" onclick="openAdminEdit(' + item.rowIndex + ')">修改</button><button class="btn btn-sm btn-outline-danger flex-fill" onclick="deleteAdminProject(' + item.rowIndex + ')">刪除</button></div>'
+          + '</div>';
+      }).join("") || '<div class="text-muted small text-center py-3">沒有符合的專案</div>';
+    }
+
+    function openAdminEdit(rowIndex) {
+      var item = globalProjectsData.find(function(p) { return p.rowIndex == rowIndex; });
+      if (!item) return;
+      document.getElementById("adminRowIndex").value = item.rowIndex;
+      document.getElementById("adminTitle").value = item.title || "";
+      fillAdminSelect("adminCategory", Array.from(document.getElementById("catSelect").options).map(function(o) { return o.value; }).filter(Boolean), item.category);
+      fillAdminSelect("adminLeader", managersList, item.leader);
+      fillAdminSelect("adminEditor", membersList, item.editor);
+      document.getElementById("adminDrive").value = item.driveUrl || "";
+      document.getElementById("adminNormalStatus").value = item.normalStatus || "待剪接";
+      document.getElementById("adminNormalDate").value = item.normalTargetDate || "";
+      document.getElementById("adminNeedTdm").value = item.needTdm === "是" ? "是" : "否";
+      document.getElementById("adminTdmStatus").value = item.tdmStatus || "不需要";
+      document.getElementById("adminTdmDate").value = item.tdmTargetDate || "";
+      document.getElementById("adminNotes").value = item.notes || "";
+      adminEditModal.show();
+    }
+
+    function saveAdminEdit() {
+      var payload = {
+        rowIndex: document.getElementById("adminRowIndex").value,
+        title: document.getElementById("adminTitle").value,
+        category: document.getElementById("adminCategory").value,
+        leader: document.getElementById("adminLeader").value,
+        editor: document.getElementById("adminEditor").value,
+        driveUrl: document.getElementById("adminDrive").value,
+        normalStatus: document.getElementById("adminNormalStatus").value,
+        normalTargetDate: document.getElementById("adminNormalDate").value,
+        needTdm: document.getElementById("adminNeedTdm").value,
+        tdmStatus: document.getElementById("adminTdmStatus").value,
+        tdmTargetDate: document.getElementById("adminTdmDate").value,
+        notes: document.getElementById("adminNotes").value
+      };
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) {
+          adminEditModal.hide();
+          loadData();
+          setTimeout(renderAdminTable, 800);
+        }
+      }).adminUpdateProject(payload);
+    }
+
+    function deleteAdminProject(rowIndex) {
+      var item = globalProjectsData.find(function(p) { return p.rowIndex == rowIndex; });
+      if (!item || !confirm("確定刪除 「" + item.title + "」 ？")) return;
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) {
+          loadData();
+          setTimeout(renderAdminTable, 800);
+        }
+      }).adminDeleteProject(rowIndex);
+    }
+
+    function toggleTdmDate(isChecked) {
+      const group = document.getElementById('tdmDateGroup');
+      const input = document.getElementById('tdmDateInput');
+      group.style.display = isChecked ? 'block' : 'none';
+      input.required = isChecked;
+    }
+
+    var loadedMonths = {};
+
+    function initCalendar() {
+      const calendarEl = document.getElementById('calendar');
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'zh-tw',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth'
+        },
+        buttonText: { today: '今天', month: '月' },
+        editable: true,
+        eventStartEditable: true,
+        eventDurationEditable: false,
+        eventClick: function(info) {
+          const item = info.event.extendedProps;
+          openModal(item.rowIndex, item.versionType);
+        },
+        eventDragStart: function() {
+          document.body.classList.add("fc-dragging");
+        },
+        eventDragStop: function(info) {
+          document.body.classList.remove("fc-dragging");
+          var jsEvent = info.jsEvent;
+          var prevBtn = document.querySelector(".fc-prev-button");
+          var nextBtn = document.querySelector(".fc-next-button");
+          function isOver(btn) {
+            if (!btn) return false;
+            var r = btn.getBoundingClientRect();
+            return jsEvent.clientX >= r.left && jsEvent.clientX <= r.right &&
+                   jsEvent.clientY >= r.top && jsEvent.clientY <= r.bottom;
+          }
+          var direction = isOver(prevBtn) ? -1 : (isOver(nextBtn) ? 1 : 0);
+          if (direction !== 0) {
+            var props = info.event.extendedProps;
+            var oldDate = info.event.start;
+            var newDate = new Date(oldDate);
+            newDate.setMonth(newDate.getMonth() + direction);
+            var ymd = newDate.getFullYear() + "-" + String(newDate.getMonth() + 1).padStart(2, "0") + "-" + String(newDate.getDate()).padStart(2, "0");
+            google.script.run
+              .withSuccessHandler(function(res) {
+                if (res.success) {
+                  var item = globalProjectsData.find(function(p) { return p.rowIndex == props.rowIndex; });
+                  if (item) {
+                    if (props.versionType === "tdm") item.tdmTargetDate = ymd;
+                    else item.normalTargetDate = ymd;
+                  }
+                  if (direction < 0) calendar.prev(); else calendar.next();
+                  renderCalendarEvents(globalProjectsData);
+                }
+              })
+              .updateEventDate(props.rowIndex, props.versionType, ymd);
+          }
+          document.querySelectorAll(".fc-arrow-hover").forEach(function(el) { el.classList.remove("fc-arrow-hover"); });
+        },
+        eventDragStart: function() {
+          document.getElementById("edgeLeft").classList.add("active");
+          document.getElementById("edgeRight").classList.add("active");
+          window._edgeNavLock = false;
+          window._onEdgeMove = function(e) {
+            if (window._edgeNavLock) return;
+            var wrap = document.getElementById("calendarWrap");
+            if (!wrap) return;
+            var rect = wrap.getBoundingClientRect();
+            var x = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX);
+            if (!x) return;
+            if (x < rect.left + 70) {
+              window._edgeNavLock = true;
+              calendar.prev();
+              setTimeout(function() { window._edgeNavLock = false; }, 600);
+            } else if (x > rect.right - 70) {
+              window._edgeNavLock = true;
+              calendar.next();
+              setTimeout(function() { window._edgeNavLock = false; }, 600);
+            }
+          };
+          document.addEventListener("pointermove", window._onEdgeMove);
+          document.addEventListener("touchmove", window._onEdgeMove, { passive: true });
+        },
+        eventDragStop: function(info) {
+          document.getElementById("edgeLeft").classList.remove("active");
+          document.getElementById("edgeRight").classList.remove("active");
+          if (window._onEdgeMove) {
+            document.removeEventListener("pointermove", window._onEdgeMove);
+            document.removeEventListener("touchmove", window._onEdgeMove);
+            window._onEdgeMove = null;
+          }
+        },
+        eventDrop: function(info) {
+          var props = info.event.extendedProps;
+          var newDate = info.event.startStr.substring(0, 10);
+
+          google.script.run
+            .withSuccessHandler(function(res) {
+              if (!res.success) {
+                info.revert();
+                alert("更新失敗：" + res.message);
+                return;
+              }
+              var item = globalProjectsData.find(function(p) { return p.rowIndex == props.rowIndex; });
+              if (item) {
+                if (props.versionType === "tdm") item.tdmTargetDate = newDate;
+                else item.normalTargetDate = newDate;
+              }
+              applyFilters();
+            })
+            .withFailureHandler(function(err) {
+              info.revert();
+              alert("更新失敗：" + err);
+            })
+            .updateEventDate(props.rowIndex, props.versionType, newDate);
+        },
+
+      });
+      calendar.render();
+
+      // 拖曳到左右箭頭切換月份
+      setTimeout(function() {
+        var prevBtn = document.querySelector(".fc-prev-button");
+        var nextBtn = document.querySelector(".fc-next-button");
+        function setupArrowDrop(btn, direction) {
+          if (!btn) return;
+          btn.addEventListener("dragover", function(e) {
+            e.preventDefault();
+            btn.classList.add("fc-arrow-hover");
+          });
+          btn.addEventListener("dragleave", function() {
+            btn.classList.remove("fc-arrow-hover");
+          });
+          btn.addEventListener("drop", function(e) {
+            e.preventDefault();
+            btn.classList.remove("fc-arrow-hover");
+            if (direction === "prev") calendar.prev();
+            else calendar.next();
+          });
+        }
+        setupArrowDrop(prevBtn, "prev");
+        setupArrowDrop(nextBtn, "next");
+      }, 300);
+    }
+
+    function loadMonthIfNeeded(yearMonth) {
+      // 已改為一次載入全部，不再按月載入
+    }
+
+    function renderCalendarView() {
+      setTimeout(() => { calendar.updateSize(); }, 150);
+    }
+
+    function initSearchableSelect(elementId, items, defaultText = '', onChangeCallback = null) {
+      if (choicesInstances[elementId]) {
+        choicesInstances[elementId].destroy();
+      }
+      
+      const selectEl = document.getElementById(elementId);
+      let html = defaultText ? `<option value="">${defaultText}</option>` : '';
+      html += items.map(item => `<option value="${item}">${item}</option>`).join('');
+      selectEl.innerHTML = html;
+
+      choicesInstances[elementId] = new Choices(selectEl, {
+        searchEnabled: true,
+        searchPlaceholderValue: '搜尋 ...',
+        itemSelectText: '',
+        noResultsText: '無結果',
+        noChoicesText: '無選項',
+        position: 'bottom',
+        shouldSort: false
+      });
+
+      if (onChangeCallback) {
+        selectEl.addEventListener('change', onChangeCallback);
+      }
+    }
+
+    function populateModalSelect(elementId, items) {
+      const selectEl = document.getElementById(elementId);
+      if (!selectEl) return;
+      selectEl.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
+    }
+
+    function loadDropdownOptions() {
+      startLoading('正在載入類別...');
+      google.script.run
+        .withSuccessHandler(cats => {
+          initSearchableSelect('catSelect', cats, '', onCategoryChange);
+          initSearchableSelect('filterCategory', cats, '所有節目', applyFilters);
+          var titleEl = document.getElementById("titleInput");
+          if (titleEl) titleEl.addEventListener("input", onTitleInput);
+          finishLoading();
+        })
+        .withFailureHandler(() => finishLoading())
+        .getCategories();
+      
+      startLoading('正在載入負責人...');
+      google.script.run
+        .withSuccessHandler(managers => {
+          managersList = managers || [];
+          initSearchableSelect('leaderSelect', managers);
+          initSearchableSelect('filterLeader', managers, '所有負責人', applyFilters);
+          finishLoading();
+        })
+        .withFailureHandler(() => finishLoading())
+        .getProjectManagers();
+
+      startLoading('正在載入成員...');
+      google.script.run
+        .withSuccessHandler(members => {
+          membersList = members || [];
+          initSearchableSelect('editorSelect', members);
+          initSearchableSelect('filterEditor', members, '所有剪接師', applyFilters);
+          finishLoading();
+        })
+        .withFailureHandler(() => finishLoading())
+        .getMembers();
+    }
+
+    function loadData() {
+      startLoading('正在載入專案資料...');
+      google.script.run
+        .withSuccessHandler(items => {
+          globalProjectsData = items || [];
+          applyFilters();
+          renderCalendarEvents(globalProjectsData);
+          finishLoading();
+        })
+        .withFailureHandler(() => finishLoading())
+        .getProjects();
+    }
+
+    function applyFilters() {
+      const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
+      const leader = document.getElementById('filterLeader').value;
+      const editor = document.getElementById('filterEditor').value;
+      const category = document.getElementById('filterCategory').value;
+
+      const filtered = globalProjectsData.filter(item => {
+        const matchKeyword = !keyword || 
+          (item.title && item.title.toLowerCase().includes(keyword)) || 
+          (item.notes && item.notes.toLowerCase().includes(keyword));
+
+        const matchLeader = !leader || item.leader === leader;
+        const matchEditor = !editor || item.editor === editor;
+        const matchCategory = !category || item.category === category;
+
+        return matchKeyword && matchLeader && matchEditor && matchCategory;
+      });
+
+      filtered.sort(function(a, b) {
+        var da = a.normalTargetDate || "";
+        var db = b.normalTargetDate || "";
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return db.localeCompare(da);
+      });
+
+      renderTable(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('filterKeyword').value = '';
+
+      if (choicesInstances['filterLeader']) choicesInstances['filterLeader'].setChoiceByValue('');
+      if (choicesInstances['filterEditor']) choicesInstances['filterEditor'].setChoiceByValue('');
+      if (choicesInstances['filterCategory']) choicesInstances['filterCategory'].setChoiceByValue('');
+
+      applyFilters();
+    }
+
+    function getBadgeClass(status) {
+      status = (status || '').trim();
+      return statusConfig[status] ? statusConfig[status].class : 'status-badge';
+    }
+
+    function renderTable(items) {
+      const tbodyDesktop = document.getElementById('tableBodyDesktop');
+      const mobileContainer = document.getElementById('mobileCardsContainer');
+
+      if (!items || items.length === 0) {
+        tbodyDesktop.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">未找到符合條件的專案 </td></tr>';
+        mobileContainer.innerHTML = '<div class="text-center text-muted py-4 small">未找到符合條件的專案 </div>';
+        return;
+      }
+
+      tbodyDesktop.innerHTML = items.map(item => {
+        let normalClass = getBadgeClass(item.normalStatus);
+        let tdmClass = getBadgeClass(item.tdmStatus);
+
+        let tdmCell = item.needTdm === '是' ? `
+          <div class="mb-1">
+            <span class="version-tag">TDM</span>
+            <span class="status-badge ${tdmClass} ms-1">${item.tdmStatus}</span>
+          </div>
+          <div class="text-muted" style="font-size:0.75rem;">
+            交片 : ${item.tdmTargetDate || '-'}
+            <button class="btn btn-sm btn-link p-0 ms-1 text-decoration-none" onclick="openModal(${item.rowIndex}, 'tdm')">編輯 /更新 </button>
+          </div>
+        ` : '<span class="text-muted">-</span>';
+
+        let driveLinkHtml = (item.driveUrl && item.driveUrl.trim() !== '' && item.driveUrl !== '#')
+          ? `<a href="${item.driveUrl}" target="_blank" class="text-decoration-none text-muted fw-semibold">Drive 連結 </a>`
+          : `<span class="text-muted">-</span>`;
+
+        return `
+          <tr>
+            <td>
+              <div class="fw-semibold text-dark">${item.title}</div>
+              <small class="text-muted">${item.category}</small>
+            </td>
+            <td>
+              <div>${item.leader}</div>
+              <small class="text-muted">剪接 : ${item.editor}</small>
+            </td>
+            <td>
+              <div class="mb-1">
+                <span class="version-tag">IG</span>
+                <span class="status-badge ${normalClass} ms-1">${item.normalStatus}</span>
+              </div>
+              <div class="text-muted" style="font-size:0.75rem;">
+                發佈 : ${item.normalTargetDate || '-'}
+                <button class="btn btn-sm btn-link p-0 ms-1 text-decoration-none" onclick="openModal(${item.rowIndex}, 'normal')">編輯 /更新 </button>
+              </div>
+            </td>
+            <td>${tdmCell}</td>
+            <td>${driveLinkHtml}</td>
+          </tr>
+        `;
+      }).join('');
+
+      mobileContainer.innerHTML = items.map(item => {
+        let normalClass = getBadgeClass(item.normalStatus);
+        let tdmClass = getBadgeClass(item.tdmStatus);
+
+        let tdmBlock = item.needTdm === '是' ? `
+          <div class="col-6">
+            <div class="mobile-version-box">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="version-tag">TDM</span>
+                <button class="btn btn-xs btn-link p-0 text-decoration-none fw-bold" style="font-size: 0.75rem;" onclick="openModal(${item.rowIndex}, 'tdm')">編輯 </button>
+              </div>
+              <div class="mb-1"><span class="status-badge ${tdmClass}">${item.tdmStatus}</span></div>
+              <div class="text-muted" style="font-size: 0.72rem;">交片 : ${item.tdmTargetDate || '-'}</div>
+            </div>
+          </div>
+        ` : '';
+
+        let mobileDriveBtn = (item.driveUrl && item.driveUrl.trim() !== '' && item.driveUrl !== '#')
+          ? `<a href="${item.driveUrl}" target="_blank" class="btn btn-xs btn-outline-primary py-1 px-2" style="font-size: 0.72rem; border-radius: 6px;">Drive 雲端 </a>`
+          : `<span class="text-muted" style="font-size: 0.72rem;">無連結 </span>`;
+
+        return `
+          <div class="mobile-project-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <div class="fw-bold text-dark" style="font-size: 0.95rem;">${item.title}</div>
+                <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.68rem;">${item.category}</span>
+              </div>
+              ${mobileDriveBtn}
+            </div>
+            
+            <div class="d-flex flex-wrap gap-3 text-muted mb-2 pb-1" style="font-size: 0.78rem;">
+              <span>負責人 : ${item.leader}</span>
+              <span>剪接 : ${item.editor}</span>
+            </div>
+
+            <div class="row g-2">
+              <div class="${item.needTdm === '是' ? 'col-6' : 'col-12'}">
+                <div class="mobile-version-box">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="version-tag">IG</span>
+                    <button class="btn btn-xs btn-link p-0 text-decoration-none fw-bold" style="font-size: 0.75rem;" onclick="openModal(${item.rowIndex}, 'normal')">編輯 </button>
+                  </div>
+                  <div class="mb-1"><span class="status-badge ${normalClass}">${item.normalStatus}</span></div>
+                  <div class="text-muted" style="font-size: 0.72rem;">發佈 : ${item.normalTargetDate || '-'}</div>
+                </div>
+              </div>
+              ${tdmBlock}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCalendarEvents(items) {
+      calendar.removeAllEvents();
+      items.forEach(item => {
+        const catColor = getCategoryColor(item.category);
+
+        if (item.normalTargetDate) {
+          const shortStatus = statusShortMap[item.normalStatus] || '';
+          const statusText = shortStatus ? `${shortStatus}` : '';
+
+          calendar.addEvent({
+            title: `[IG${statusText}] ${item.title}`,
+            start: item.normalTargetDate,
+            backgroundColor: catColor,
+            borderColor: catColor,
+            textColor: '#ffffff',
+            editable: true,
+            extendedProps: {
+              rowIndex: item.rowIndex,
+              versionType: 'normal'
+            }
+          });
+        }
+
+        if (item.needTdm === '是' && item.tdmTargetDate) {
+          const shortStatus = statusShortMap[item.tdmStatus] || '';
+          const statusText = shortStatus ? `${shortStatus}` : '';
+
+          calendar.addEvent({
+            title: `[TDM${statusText}] ${item.title}`,
+            start: item.tdmTargetDate,
+            backgroundColor: catColor,
+            borderColor: catColor,
+            textColor: '#ffffff',
+            editable: true,
+            extendedProps: {
+              rowIndex: item.rowIndex,
+              versionType: 'tdm'
+            }
+          });
+        }
+      });
+    }
+
+
+    // ===== 名稱與類別自動連動（不鎖定） =====
+    var categoryPrefixMap = [
+      { prefix: "1分鐘_", category: "1分鐘就有60秒過去" },
+      { prefix: "小城遊記_", category: "小城遊記" },
+      { prefix: "培正Talkshow_", category: "培正 Talkshow" },
+      { prefix: "培正 Talkshow_", category: "培正 Talkshow" },
+      { prefix: "年少有你_", category: "年少有你" },
+      { prefix: "走進中華大觀園_", category: "走進中華大觀園" },
+      { prefix: "紅藍檔案_", category: "紅藍檔案" },
+      { prefix: "校園我 say_", category: "校園我 say" },
+      { prefix: "校園我say_", category: "校園我 say" },
+      { prefix: "案件重演_", category: "案件重演" },
+      { prefix: "動力「培」FUN_", category: "動力「培」FUN" },
+      { prefix: "講呢 D_", category: "講呢 D" },
+      { prefix: "講呢D_", category: "講呢 D" },
+      { prefix: "1分鐘", category: "1分鐘就有60秒過去" },
+      { prefix: "培正Talkshow", category: "培正 Talkshow" },
+      { prefix: "培正 Talkshow", category: "培正 Talkshow" },
+      { prefix: "年少有你", category: "年少有你" },
+      { prefix: "走進中華大觀園", category: "走進中華大觀園" },
+      { prefix: "小城遊記", category: "小城遊記" },
+      { prefix: "紅藍檔案", category: "紅藍檔案" },
+      { prefix: "校園我 say", category: "校園我 say" },
+      { prefix: "校園我say", category: "校園我 say" },
+      { prefix: "案件重演", category: "案件重演" },
+      { prefix: "動力「培」FUN", category: "動力「培」FUN" },
+      { prefix: "講呢 D", category: "講呢 D" },
+      { prefix: "講呢D", category: "講呢 D" }
+    ];
+
+    var talkshowCats = ["培正 Talkshow", "培正Talkshow", "年少有你", "走進中華大觀園"];
+
+    function isNonRegular(cat) {
+      return !cat || cat.indexOf("非恆常") !== -1 || cat.indexOf("直播") !== -1;
+    }
+
+    function isTalkshowCat(cat) {
+      return talkshowCats.indexOf(cat) !== -1 || (cat && cat.indexOf("Talkshow") !== -1);
+    }
+
+    function getPrefixForCategory(cat) {
+      if (!cat || isNonRegular(cat)) return "";
+      if (cat.indexOf("1分鐘") !== -1) return "1分鐘_";
+      if (isTalkshowCat(cat)) return "Talkshow_";
+      return cat + "_";
+    }
+
+    function stripKnownPrefix(title) {
+      var t = (title || "").trim();
+      var prefixes = ["Talkshow_", "1分鐘_", "培正Talkshow_", "培正 Talkshow_", "年少有你_", "走進中華大觀園_",
+        "小城遊記_", "紅藍檔案_", "校園我 say_", "校園我say_", "案件重演_", "動力「培」FUN_", "講呢 D_", "講呢D_",
+        "培正Talkshow", "培正 Talkshow", "年少有你", "走進中華大觀園", "小城遊記", "紅藍檔案"];
+      for (var i = 0; i < prefixes.length; i++) {
+        if (t.indexOf(prefixes[i]) === 0) {
+          return t.substring(prefixes[i].length).trim();
+        }
+      }
+      return t;
+    }
+
+    function detectCategoryFromTitle(title) {
+      if (!title) return null;
+      var t = title.trim();
+      if (t.indexOf("Talkshow_") === 0) return "培正 Talkshow";
+      if (t.indexOf("1分鐘_") === 0 || t.indexOf("1分鐘") === 0) return "1分鐘就有60秒過去";
+      for (var i = 0; i < categoryPrefixMap.length; i++) {
+        if (t.indexOf(categoryPrefixMap[i].prefix) === 0) {
+          return categoryPrefixMap[i].category;
+        }
+      }
+      return null;
+    }
+
+    function onTitleInput() {
+      var titleEl = document.getElementById("titleInput");
+      var title = titleEl ? titleEl.value : "";
+      var detected = detectCategoryFromTitle(title);
+      if (detected && choicesInstances["catSelect"]) {
+        try { choicesInstances["catSelect"].setChoiceByValue(detected); } catch (e) {}
+      }
+    }
+
+    function onCategoryChange() {
+      var catEl = document.getElementById("catSelect");
+      var titleEl = document.getElementById("titleInput");
+      if (!catEl || !titleEl) return;
+      var cat = catEl.value;
+      var raw = stripKnownPrefix(titleEl.value || "");
+      if (isNonRegular(cat)) {
+        titleEl.value = raw;
+        return;
+      }
+      var prefix = getPrefixForCategory(cat);
+      titleEl.value = prefix ? (prefix + raw) : raw;
+    }
+
+    function handleSubmit(form) {
+      event.preventDefault();
+      const btn = document.getElementById('subBtn');
+      btn.disabled = true;
+      btn.innerText = '建立中 ...';
+
+      google.script.run.withSuccessHandler(res => {
+        alert(res.message);
+        form.reset();
+        document.getElementById('tdmDateGroup').style.display = 'none';
+        btn.disabled = false;
+        btn.innerText = '建立項目';
+        loadDropdownOptions();
+        loadData();
+      }).addProject(form);
+    }
+
+    function openModal(rowIndex, versionType = 'normal') {
+      const item = globalProjectsData.find(p => p.rowIndex == rowIndex);
+      if (!item) return;
+
+      document.getElementById('modalRowIndex').value = item.rowIndex;
+      document.getElementById('modalVersionType').value = versionType;
+      document.getElementById('modalTitle').innerText = item.title;
+      document.getElementById('modalSubTitle').innerText = versionType === 'tdm' ? '正在編輯 「 TDM 版本 」 進度' : '正在編輯 「 IG 版本 」 進度';
+      
+      populateModalSelect('modalLeader', managersList);
+      document.getElementById('modalLeader').value = item.leader || '';
+
+      populateModalSelect('modalEditor', membersList);
+      document.getElementById('modalEditor').value = item.editor || '';
+
+      const normalGroup = document.getElementById('modalNormalDateGroup');
+      const tdmGroup = document.getElementById('modalTdmDateGroup');
+
+      if (versionType === 'tdm') {
+        normalGroup.style.display = 'none';
+        tdmGroup.style.display = 'block';
+        document.getElementById('modalTdmDate').value = item.tdmTargetDate || '';
+      } else {
+        normalGroup.style.display = 'block';
+        tdmGroup.style.display = 'none';
+        document.getElementById('modalNormalDate').value = item.normalTargetDate || '';
+      }
+
+      document.getElementById('modalStatus').value = versionType === 'tdm' ? item.tdmStatus : item.normalStatus;
+      document.getElementById('modalNotes').value = item.notes || '';
+      
+      let modalDriveBtn = (item.driveUrl && item.driveUrl.trim() !== '' && item.driveUrl !== '#')
+        ? `<a href="${item.driveUrl}" target="_blank" class="btn btn-sm btn-outline-primary w-100 py-2" style="border-radius: 8px;">開啟  Google Drive 雲端 </a>`
+        : `<button class="btn btn-sm btn-light text-muted w-100 py-2" disabled style="border-radius: 8px;">未提供  Google Drive 連結 </button>`;
+
+      document.getElementById('modalDriveLink').innerHTML = modalDriveBtn;
+      
+      updateModal.show();
+    }
+
+    function saveProgress() {
+      const rowIndex = document.getElementById('modalRowIndex').value;
+      const versionType = document.getElementById('modalVersionType').value;
+      const leader = document.getElementById('modalLeader').value;
+      const editor = document.getElementById('modalEditor').value;
+
+      const normalTargetDate = (versionType === 'normal') ? document.getElementById('modalNormalDate').value : null;
+      const tdmTargetDate = (versionType === 'tdm') ? document.getElementById('modalTdmDate').value : null;
+
+      const status = document.getElementById('modalStatus').value;
+      const notes = document.getElementById('modalNotes').value;
+
+      const btn = document.getElementById('saveProgressBtn');
+      btn.disabled = true;
+      btn.innerText = '儲存中 ...';
+
+      google.script.run.withSuccessHandler(res => {
+        btn.disabled = false;
+        btn.innerText = '儲存變更';
+        updateModal.hide();
+        loadData();
+      }).withFailureHandler(err => {
+        btn.disabled = false;
+        btn.innerText = '儲存變更';
+        alert('更新失敗 :' + err.toString());
+      }).updateVersionProgress(rowIndex, versionType, status, notes, leader, editor, normalTargetDate, tdmTargetDate);
+    }
+
+    function startInitialLoadForRefresh() {
+      // 重新整理時也顯示載入遮罩
+      pendingLoads = 0;
+      loadStarted = false;
+      startInitialLoad();
+    }
+
+    // ===== 手機底部導覽切換 =====
+    function switchMobileView(view) {
+      document.querySelectorAll(".bottom-nav-btn").forEach(function(btn) {
+        btn.classList.toggle("active", btn.getAttribute("data-view") === view);
+      });
+
+      if (view === "admin") {
+        openAdminPanel();
+        return;
+      }
+      if (view === "activity") {
+        openActivityPanel();
+        return;
+      }
+
+      var adminPanel = document.getElementById("adminPanel");
+      if (adminPanel && adminPanel.style.display !== "none") {
+        closeAdminPanel();
+      }
+      var actPanel = document.getElementById("activityPanel");
+      if (actPanel && actPanel.style.display !== "none") {
+        closeActivityPanel();
+      }
+
+      if (view === "calendar") {
+        var calTab = document.getElementById("calendar-tab");
+        if (calTab) calTab.click();
+        setTimeout(renderCalendarView, 100);
+      } else if (view === "list") {
+        var listTab = document.getElementById("list-tab");
+        if (listTab) listTab.click();
+      }
+    }
+
+    // ===== 電腦左右面板收合 =====
+    var panelState = { left: false, right: false };
+
+    function togglePanel(side) {
+      var panel = document.getElementById(side === "left" ? "leftPanel" : "rightPanel");
+      var row = document.getElementById("mainRow");
+      var btn = document.getElementById(side === "left" ? "toggleLeftBtn" : "toggleRightBtn");
+      if (!panel || !row) return;
+
+      panelState[side] = !panelState[side];
+      panel.classList.toggle("collapsed", panelState[side]);
+
+      if (side === "left") {
+        row.classList.toggle("left-hidden", panelState.left);
+        btn.innerText = panelState.left ? "▶ 展開左側" : "◀ 收合左側";
+      } else {
+        row.classList.toggle("right-hidden", panelState.right);
+        btn.innerText = panelState.right ? "◀ 展開右側" : "收合右側 ▶";
+      }
+
+      if (calendar) setTimeout(function() { calendar.updateSize(); }, 200);
+    }
+
+
+    // ===== 拍攝活動（多時段）=====
+    var activityModal = null;
+    var activityData = [];
+    var slotCounter = 0;
+
+
+
+    function switchToView(view) {
+      closeAdminPanel();
+      closeActivityPanel();
+      if (view === "calendar") {
+        var calTab = document.getElementById("calendar-tab");
+        if (calTab) calTab.click();
+        setTimeout(renderCalendarView, 100);
+      } else if (view === "list") {
+        var listTab = document.getElementById("list-tab");
+        if (listTab) listTab.click();
+      }
+    }
+
+    function toggleSideMenu() {
+      var menu = document.getElementById("sideMenu");
+      var overlay = document.getElementById("sideMenuOverlay");
+      if (!menu) return;
+      var open = menu.style.transform === "translateX(0px)" || menu.style.transform === "translateX(0)";
+      menu.style.transform = open ? "translateX(-100%)" : "translateX(0)";
+      if (overlay) overlay.style.display = open ? "none" : "block";
+    }
+
+    function openActivityPanel() {
+      closeAdminPanel();
+      var panel = document.getElementById("activityPanel");
+      var header = document.querySelector(".app-header");
+      var headerH = header ? header.offsetHeight : 60;
+      if (panel) {
+        panel.style.display = "block";
+        panel.style.position = "fixed";
+        panel.style.top = headerH + "px";
+        panel.style.left = "0";
+        panel.style.right = "0";
+        panel.style.bottom = "0";
+        panel.style.zIndex = "1025";
+        panel.style.background = "#f8fafc";
+        panel.style.overflowY = "auto";
+        panel.style.padding = "16px";
+      }
+      document.querySelectorAll(".container-fluid.pb-5").forEach(function(el) {
+        if (el.id !== "activityPanel") el.style.display = "none";
+      });
+      loadActivities();
+    }
+    function closeActivityDrawer() {
+      var drawer = document.getElementById("activityDrawer");
+      var overlay = document.getElementById("activityDrawerOverlay");
+      if (drawer) drawer.classList.remove("open");
+      if (overlay) overlay.classList.remove("show");
+    }
+    function closeActivityPanel() {
+      var panel = document.getElementById("activityPanel");
+      if (panel) {
+        panel.style.display = "none";
+        panel.style.position = "";
+        panel.style.inset = "";
+        panel.style.zIndex = "";
+        panel.style.background = "";
+        panel.style.overflowY = "";
+        panel.style.padding = "";
+      }
+      document.querySelectorAll(".container-fluid.pb-5").forEach(function(el) {
+        if (el.id !== "activityPanel" && el.id !== "adminPanel") el.style.display = "";
+      });
+    }
+
+    function loadActivities() {
+      var listEl = document.getElementById("activityList");
+      if (listEl) listEl.innerHTML = '<div class="text-center py-4"><div class="loading-spinner mx-auto" style="width:32px;height:32px;border-width:3px;"></div><div class="small text-muted mt-2">載入中...</div></div>';
+      google.script.run.withSuccessHandler(function(res) {
+        if (!res || !res.success) { 
+          if (listEl) listEl.innerHTML = '<div class="text-danger text-center py-3">' + (res && res.message ? res.message : "載入失敗") + '</div>';
+          return; 
+        }
+        activityData = res.data || [];
+        renderActivityList();
+      }).withFailureHandler(function(err) { 
+        if (listEl) listEl.innerHTML = '<div class="text-danger text-center py-3">載入失敗：' + err + '</div>';
+      }).getActivities();
+    }
+
+    function renderActivityList() {
+      var el = document.getElementById("activityList");
+      if (!el) return;
+      if (!activityData.length) {
+        el.innerHTML = '<div class="text-muted text-center py-4">尚未有拍攝活動</div>';
+        return;
+      }
+      el.innerHTML = activityData.map(function(a) {
+        var slotsHtml = (a.slots || []).map(function(s, idx) {
+          var leaveText = (s.leaveList || []).map(function(m) {
+            return (m.name || "") + " (" + (m.start||"-") + "-" + (m.end||"-") + ")";
+          }).join("、") || "無";
+          var leadersText = (s.leaders || (s.leader ? [s.leader] : [])).join("、") || "-";
+          var coordsText = (s.coordinators || (s.coordinator ? [s.coordinator] : [])).join("、") || "-";
+          var leaveText = (s.leaveStart || s.leaveEnd) ? ("由第" + (s.leaveStart||"-") + "至第" + (s.leaveEnd||"-") + "節") : "無";
+          return '<div class="small mt-1 ps-2 border-start">'
+            + '<div style="font-size:0.95rem;font-weight:600;">' + (s.date || "-") + '</div>'
+            + '<div>負責：' + leadersText + '</div>'
+            + '<div>統籌：' + coordsText + '</div>'
+            + '<div>公假：' + leaveText + '</div></div>';
+        }).join("") || '<div class="small text-muted">無時段</div>';
+        return '<div class="border rounded-3 p-3 mb-3 bg-white" style="border-color:#e2e8f0 !important;">'
+          + '<div class="d-flex justify-content-between align-items-start mb-2">'
+          + '<div><div class="fw-bold" style="font-size:1.15rem;">' + (a.name || "未命名") + '</div>'
+          + '<div class="text-muted" style="font-size:0.88rem;">' + (a.item || "") + '</div></div>'
+          + '<div class="text-nowrap">'
+          + '<button class="btn btn-sm btn-outline-secondary me-1" style="border-radius:6px;" onclick="openActivityForm(' + a.rowIndex + ')">編輯</button>'
+          + '<button class="btn btn-sm btn-outline-danger" style="border-radius:6px;" onclick="deleteActivityItem(' + a.rowIndex + ')">刪除</button>'
+          + '</div></div>'
+          + slotsHtml + '</div>';
+      }).join("");
+    }
+
+    function openActivityForm(rowIndex) {
+      if (!activityModal) activityModal = new bootstrap.Modal(document.getElementById("activityModal"));
+      document.getElementById("actRowIndex").value = rowIndex || "";
+      document.getElementById("activityModalTitle").innerText = rowIndex ? "編輯拍攝活動" : "新增拍攝活動";
+      var item = activityData.find(function(a) { return a.rowIndex == rowIndex; }) || {};
+      document.getElementById("actItem").value = item.item || "";
+      document.getElementById("actName").value = item.name || "";
+      document.getElementById("slotsContainer").innerHTML = "";
+      slotCounter = 0;
+      (item.slots || []).forEach(function(s) { addSlot(s); });
+      if (!(item.slots || []).length) addSlot();
+      activityModal.show();
+    }
+
+    function addSlot(data) {
+      data = data || {};
+      var id = ++slotCounter;
+      var leaders = Array.isArray(data.leaders) ? data.leaders : (data.leader ? [data.leader] : []);
+      var coords = Array.isArray(data.coordinators) ? data.coordinators : (data.coordinator ? [data.coordinator] : []);
+
+      var leaderOpts = (membersList || []).map(function(m) {
+        return '<option value="' + m + '"' + (leaders.indexOf(m) !== -1 ? ' selected' : '') + '>' + m + '</option>';
+      }).join("");
+      var adminList = window.adminNamesList || [];
+      var coordOpts = adminList.map(function(m) {
+        return '<option value="' + m + '"' + (coords.indexOf(m) !== -1 ? ' selected' : '') + '>' + m + '</option>';
+      }).join("");
+
+      var html = '<div class="border rounded p-2 mb-3 slot-block" data-slot="' + id + '">'
+        + '<div class="d-flex justify-content-between mb-2"><strong>時段</strong>'
+        + '<button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest(\'.slot-block\').remove()">移除</button></div>'
+        + '<div class="mb-2">'
+        + '<div class="row g-1">'
+        + '<div class="col-6"><input type="date" class="form-control form-control-sm slot-date-picker"></div>'
+        + '<div class="col-3"><input type="time" class="form-control form-control-sm slot-time-start"></div>'
+        + '<div class="col-3"><input type="time" class="form-control form-control-sm slot-time-end"></div>'
+        + '</div>'
+        + '<input type="text" class="form-control form-control-sm slot-date mt-1" placeholder="或手動輸入日期／時段備註" value="' + (data.date || "") + '">'
+        + '</div>'
+        + '<div class="mb-2"><div class="small fw-semibold">負責成員 <span class="text-primary count-leaders">(0人)</span></div>'
+        + '<select class="form-select form-select-sm slot-leader-select" multiple>' + leaderOpts + '</select></div>'
+        + '<div class="mb-2"><div class="small fw-semibold">成員統籌 <span class="text-primary count-coords">(0人)</span></div>'
+        + '<select class="form-select form-select-sm slot-coord-select" multiple>' + coordOpts + '</select></div>'
+        + '<div class="mb-2">'
+        + '<div class="small fw-semibold mb-1">公假（所有人統一）</div>'
+        + '<div class="d-flex align-items-center gap-1">'
+        + '<span class="small">由第</span>'
+        + '<input type="number" class="form-control form-control-sm slot-leave-unified-start" min="1" max="8" style="width:60px" placeholder="幾" value="' + (data.leaveStart || "") + '">'
+        + '<span class="small">至第</span>'
+        + '<input type="number" class="form-control form-control-sm slot-leave-unified-end" min="1" max="8" style="width:60px" placeholder="幾" value="' + (data.leaveEnd || "") + '">'
+        + '<span class="small">節</span>'
+        + '</div></div>'
+        + '</div>';
+
+      document.getElementById("slotsContainer").insertAdjacentHTML("beforeend", html);
+      var block = document.querySelector('.slot-block[data-slot="' + id + '"]');
+      if (block) {
+        block.querySelectorAll(".slot-leader-select, .slot-coord-select").forEach(function(sel) {
+          new Choices(sel, {
+            removeItemButton: true,
+            searchEnabled: true,
+            searchPlaceholderValue: '搜尋 ...',
+            noResultsText: '無結果',
+            noChoicesText: '無選項',
+            itemSelectText: '',
+            position: 'bottom',
+            shouldSort: false
+          });
+          sel.addEventListener('change', function() { updateAllCounts(block); });
+        });
+        updateAllCounts(block);
+      }
+    }
+
+    function togglePeriod(btn) {
+      var container = btn.closest(".period-btns");
+      if (!container) return;
+      var name = container.getAttribute("data-name");
+      var block = btn.closest(".slot-block");
+      var startInput = block.querySelector('.slot-leave-start[data-name="' + name + '"]');
+      var endInput = block.querySelector('.slot-leave-end[data-name="' + name + '"]');
+      var period = Number(btn.getAttribute("data-period"));
+      var start = Number(startInput.value) || 0;
+      var end = Number(endInput.value) || 0;
+
+      if (!start) {
+        startInput.value = period;
+        endInput.value = period;
+      } else if (period < start) {
+        startInput.value = period;
+      } else if (period > end) {
+        endInput.value = period;
+      } else {
+        // 點中間則重設
+        startInput.value = period;
+        endInput.value = period;
+      }
+      // 更新按鈕樣式
+      var s = Number(startInput.value);
+      var e = Number(endInput.value);
+      container.querySelectorAll(".period-btn").forEach(function(b) {
+        var p = Number(b.getAttribute("data-period"));
+        if (p >= s && p <= e) {
+          b.className = "btn btn-sm btn-primary period-btn";
+        } else {
+          b.className = "btn btn-sm btn-outline-secondary period-btn";
+        }
+      });
+    }
+
+    function updateSlotCount(el) {
+      var block = el.closest(".slot-block");
+      if (block) updateAllCounts(block);
+    }
+    function updateAllCounts(block) {
+      var lSel = block.querySelector(".slot-leader-select");
+      var cSel = block.querySelector(".slot-coord-select");
+      var l = lSel ? (lSel.selectedOptions ? lSel.selectedOptions.length : 0) : 0;
+      var c = cSel ? (cSel.selectedOptions ? cSel.selectedOptions.length : 0) : 0;
+      var v = block.querySelectorAll(".slot-leave-check:checked").length;
+      var elL = block.querySelector(".count-leaders");
+      var elC = block.querySelector(".count-coords");
+      var elV = block.querySelector(".count-leave");
+      if (elL) elL.innerText = "(" + l + "人)";
+      if (elC) elC.innerText = "(" + c + "人)";
+      if (elV) elV.innerText = "(" + v + "人)";
+    }
+
+    function saveActivityForm() {
+      var slots = [];
+      document.querySelectorAll(".slot-block").forEach(function(block) {
+        var leaders = [];
+        var lSel = block.querySelector(".slot-leader-select");
+        if (lSel) Array.from(lSel.selectedOptions).forEach(function(opt) { leaders.push(opt.value); });
+        var coordinators = [];
+        var cSel = block.querySelector(".slot-coord-select");
+        if (cSel) Array.from(cSel.selectedOptions).forEach(function(opt) { coordinators.push(opt.value); });
+        var leaveStart = (block.querySelector(".slot-leave-unified-start") || {}).value || "";
+        var leaveEnd = (block.querySelector(".slot-leave-unified-end") || {}).value || "";
+        slots.push({
+          date: (function() {
+            var picker = (block.querySelector(".slot-date-picker") || {}).value || "";
+            var tStart = (block.querySelector(".slot-time-start") || {}).value || "";
+            var tEnd = (block.querySelector(".slot-time-end") || {}).value || "";
+            var period = (tStart || tEnd) ? ((tStart||"") + "-" + (tEnd||"")) : "";
+            var manual = (block.querySelector(".slot-date") || {}).value || "";
+            var parts = [];
+            if (picker) parts.push(picker);
+            if (period) parts.push(period);
+            if (manual && manual !== picker) parts.push(manual);
+            return parts.join(" ") || manual;
+          })(),
+          leaders: leaders,
+          coordinators: coordinators,
+          leaveStart: leaveStart,
+          leaveEnd: leaveEnd
+        });
+      });
+      var payload = {
+        rowIndex: document.getElementById("actRowIndex").value,
+        item: document.getElementById("actItem").value,
+        name: document.getElementById("actName").value,
+        slots: slots
+      };
+      startLoading("正在儲存...");
+      google.script.run.withSuccessHandler(function(res) {
+        finishLoading();
+        alert(res && res.message ? res.message : "完成");
+        if (res && res.success) {
+          if (activityModal) activityModal.hide();
+          setTimeout(function() { loadActivities(); }, 200);
+        }
+      }).withFailureHandler(function(err) {
+        finishLoading();
+        alert("儲存失敗：" + err);
+      }).saveActivity(payload);
+    }
+
+    function deleteActivityItem(rowIndex) {
+      if (!confirm("確定刪除這筆拍攝活動？")) return;
+      startLoading("正在刪除...");
+      google.script.run.withSuccessHandler(function(res) {
+        finishLoading();
+        alert(res && res.message ? res.message : "完成");
+        if (res && res.success) loadActivities();
+      }).withFailureHandler(function(err) {
+        finishLoading();
+        alert("刪除失敗：" + err);
+      }).deleteActivity(rowIndex);
+    }
+
+  </script>
+
+
+
+  <div id="activityDrawerOverlay" onclick="closeActivityDrawer()"></div>
+  <div id="activityDrawer">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0 fw-bold">拍攝活動</h5>
+      <button type="button" class="btn-close" onclick="closeActivityDrawer()"></button>
+    </div>
+    <div id="activityDrawerContent"></div>
+  </div>
+
+  <!-- 拍攝活動面板（僅 Admin） -->
+  <div id="activityPanel" class="container-fluid px-2 px-md-3 pb-5" style="display:none;">
+    <div class="card border-0 shadow-sm" style="border-radius:16px; max-width:900px; margin:0 auto;">
+      <div class="card-body p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom:1px solid #f1f5f9;">
+          <div>
+            <h5 class="mb-0 fw-bold" style="letter-spacing:-0.3px;">拍攝活動</h5>
+            <div class="text-muted small mt-1">可新增多個時段</div>
+          </div>
+          <button class="btn btn-dark btn-sm px-3" style="border-radius:8px; font-weight:600;" onclick="openActivityForm()">＋ 新增</button>
+        </div>
+        <div id="activityList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拍攝活動編輯 Modal -->
+  <div class="modal fade" id="activityModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="activityModalTitle">新增拍攝活動</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="actRowIndex">
+          <div class="mb-3">
+            <label class="form-label">項目</label>
+            <input type="text" class="form-control" id="actItem" placeholder="德育處">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">名稱</label>
+            <input type="text" class="form-control" id="actName" placeholder="遠行活動">
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label mb-0">時段列表</label>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSlot()">＋ 新增時段</button>
+          </div>
+          <div id="slotsContainer"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-dark" onclick="saveActivityForm()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 手機底部導覽 -->
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="bottom-nav-inner">
+      <button type="button" class="bottom-nav-btn active" data-view="calendar" onclick="switchMobileView('calendar')">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span>月曆</span>
+      </button>
+      <button type="button" class="bottom-nav-btn" data-view="list" onclick="switchMobileView('list')">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
+        <span>進度</span>
+      </button>
+      <button type="button" class="bottom-nav-btn" data-view="activity" id="bottomActivityBtn" style="display:none !important;" style="display:none;" onclick="switchMobileView('activity')">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <span>拍攝活動</span>
+      </button>
+      <button type="button" class="bottom-nav-btn" data-view="admin" id="bottomAdminBtn" style="display:none;" onclick="switchMobileView('admin')">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span>後台</span>
+      </button>
+    </div>
+  </nav>
+
+</body>
+</html>
