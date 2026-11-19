@@ -1382,8 +1382,7 @@
       loadStarted = true;
       setLoadingStatus('正在載入資料...');
       startLoading('正在載入資料...');
-      google.script.run
-        .withSuccessHandler(function(data) {
+      callAppsScript("getInitialData").then(function(data) {
           // 類別
           if (data.categories) {
             initSearchableSelect('catSelect', data.categories, '', onCategoryChange);
@@ -1444,16 +1443,10 @@
             window.adminNamesList = data.adminNames;
           }
           finishLoading();
-        })
-        .withFailureHandler(function(err) {
-          // 若新函數不存在，回退到原本的多次載入
+        }).catch(function(err) {
           finishLoading();
-          loadStarted = false;
-          loadDropdownOptions();
-          loadData();
-          autoRecordLogin();
-        })
-        .getInitialData();
+          alert("載入失敗：" + err);
+        });
     }
 
     function autoRecordLogin() {
