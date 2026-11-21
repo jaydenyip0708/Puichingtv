@@ -1,6 +1,6 @@
 // Puiching TV 專案管理系統 - 後端 Code.gs
 
-var SPREADSHEET_ID = "1s98xFnH-0KNl_Qavfcx8zZekvvCUts7PDePx2UoQnRU";
+var SPREADSHEET_ID = "18Dae4Bw0hJwwHVXOWTYpvWML0fI0Sjx5n44aAoMjJeg";
 
 function sheetTimeZone_() {
   return "Asia/Hong_Kong";
@@ -567,5 +567,26 @@ function deleteActivity(rowIndex) {
     return { success: true, message: "已刪除" };
   } catch (e) {
     return { success: false, message: "刪除失敗：" + e.toString() };
+  }
+}
+
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var action = data.action;
+    var result;
+    if (action === "getInitialData") result = getInitialData();
+    else if (action === "getProjects") result = getProjects();
+    else if (action === "getActivities") result = getActivities();
+    else if (action === "addProject") result = addProject(data.payload);
+    else if (action === "saveActivity") result = saveActivity(data.payload);
+    else if (action === "deleteActivity") result = deleteActivity(data.payload);
+    else if (action === "updateVersionProgress") result = updateVersionProgress(data.rowIndex, data.versionType, data.status, data.notes, data.leader, data.editor, data.normalTargetDate, data.tdmTargetDate);
+    else if (action === "updateEventDate") result = updateEventDate(data.rowIndex, data.versionType, data.newDate);
+    else result = { success: false, message: "未知動作" };
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
 }
