@@ -2597,16 +2597,16 @@
     function loadActivities() {
       var listEl = document.getElementById("activityList");
       if (listEl) listEl.innerHTML = '<div class="text-center py-4"><div class="loading-spinner mx-auto" style="width:32px;height:32px;border-width:3px;"></div><div class="small text-muted mt-2">載入中...</div></div>';
-      google.script.run.withSuccessHandler(function(res) {
+      callAppsScript("getActivities").then(function(res) {
         if (!res || !res.success) { 
           if (listEl) listEl.innerHTML = '<div class="text-danger text-center py-3">' + (res && res.message ? res.message : "載入失敗") + '</div>';
           return; 
         }
         activityData = res.data || [];
         renderActivityList();
-      }).withFailureHandler(function(err) { 
+      }).catch(function(err) { 
         if (listEl) listEl.innerHTML = '<div class="text-danger text-center py-3">載入失敗：' + err + '</div>';
-      }).getActivities();
+      });
     }
 
     function renderActivityList() {
@@ -2807,30 +2807,30 @@
         slots: slots
       };
       startLoading("正在儲存...");
-      google.script.run.withSuccessHandler(function(res) {
+      callAppsScript("saveActivity", payload).then(function(res) {
         finishLoading();
         alert(res && res.message ? res.message : "完成");
         if (res && res.success) {
           if (activityModal) activityModal.hide();
           setTimeout(function() { loadActivities(); }, 200);
         }
-      }).withFailureHandler(function(err) {
+      }).catch(function(err) {
         finishLoading();
         alert("儲存失敗：" + err);
-      }).saveActivity(payload);
+      });
     }
 
     function deleteActivityItem(rowIndex) {
       if (!confirm("確定刪除這筆拍攝活動？")) return;
       startLoading("正在刪除...");
-      google.script.run.withSuccessHandler(function(res) {
+      callAppsScript("deleteActivity", rowIndex).then(function(res) {
         finishLoading();
         alert(res && res.message ? res.message : "完成");
         if (res && res.success) loadActivities();
-      }).withFailureHandler(function(err) {
+      }).catch(function(err) {
         finishLoading();
         alert("刪除失敗：" + err);
-      }).deleteActivity(rowIndex);
+      });
     }
 
   </script>
