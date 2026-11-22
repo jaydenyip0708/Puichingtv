@@ -2,6 +2,8 @@
 
 <html>
 <head>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta name="google-signin-client_id" content="842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
   <base target="_top">
@@ -949,7 +951,7 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <span id="currentUserDisplay" class="user-name">連線中...</span>
+          <span id="currentUserDisplay" onclick="handleGoogleLogin()" class="user-name">連線中...</span>
         </div>
       </div>
     </div>
@@ -1385,6 +1387,48 @@
 
       initCalendar();
       startInitialLoad();
+    });
+
+
+    // ===== Google 登入 =====
+    var googleUser = null;
+    function handleGoogleLogin() {
+      if (!window.google || !google.accounts) {
+        alert("Google 登入服務尚未載入，請稍後再試");
+        return;
+      }
+      if (googleUser) {
+        // 已登入，可顯示資訊或登出
+        if (confirm("要登出嗎？")) {
+          google.accounts.id.disableAutoSelect();
+          googleUser = null;
+          document.getElementById("currentUserDisplay").innerText = "連線中...";
+        }
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
+        callback: handleCredentialResponse, auto_select: false, cancel_on_tap_outside: true
+      });
+      // google.accounts.id.prompt(); // 已關閉自動提示
+    }
+    function handleCredentialResponse(response) {
+      // 解碼 JWT 取得使用者資訊（簡易版）
+      var base64 = response.credential.split('.')[1];
+      var json = JSON.parse(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
+      googleUser = json;
+      var name = json.name || json.email || "已登入";
+      document.getElementById("currentUserDisplay").innerText = name;
+      console.log("Logged in:", json);
+    }
+    // 頁面載入時初始化
+    window.addEventListener("load", function() {
+      if (window.google && google.accounts) {
+        google.accounts.id.initialize({
+          client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
+          callback: handleCredentialResponse, auto_select: false, cancel_on_tap_outside: true
+        });
+      }
     });
 
     function startInitialLoad() {
@@ -2921,4 +2965,3 @@
 
 </body>
 </html>
- 
