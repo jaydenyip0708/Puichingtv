@@ -1390,7 +1390,7 @@
       loadStarted = true;
       setLoadingStatus('正在載入資料...');
       startLoading('正在載入資料...');
-      callAppsScript("getInitialData").then(function(data) {
+      fetch(APPS_SCRIPT_URL + "?action=getInitialData").then(function(r){ return r.json(); }).then(function(data) {
           // 類別
           if (data.categories) {
             initSearchableSelect('catSelect', data.categories, '', onCategoryChange);
