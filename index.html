@@ -951,7 +951,7 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <span id="currentUserDisplay" onclick="handleGoogleLogin()" class="user-name">連線中...</span>
+          <span id="currentUserDisplay" onclick="try{handleGoogleLogin()}catch(e){alert(e)}" style="cursor:pointer;" class="user-name">點擊登入</span>
         </div>
       </div>
     </div>
@@ -1398,20 +1398,36 @@
         return;
       }
       if (googleUser) {
-        // 已登入，可顯示資訊或登出
-        if (confirm("要登出嗎？")) {
+        if (confirm("要登出並切換帳號嗎？")) {
           google.accounts.id.disableAutoSelect();
           googleUser = null;
-          document.getElementById("currentUserDisplay").innerText = "連線中...";
+          document.getElementById("currentUserDisplay").innerText = "點擊登入";
         }
         return;
       }
+      var btnDiv = document.getElementById("googleBtnContainer");
+      if (!btnDiv) {
+        btnDiv = document.createElement("div");
+        btnDiv.id = "googleBtnContainer";
+        btnDiv.style.cssText = "position:fixed;top:70px;right:16px;z-index:9999;background:#fff;padding:8px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.15);";
+        document.body.appendChild(btnDiv);
+      }
+      btnDiv.innerHTML = "";
       google.accounts.id.initialize({
         client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
-        callback: handleCredentialResponse, auto_select: false, cancel_on_tap_outside: true
+        callback: function(resp) {
+          handleCredentialResponse(resp);
+          if (btnDiv) btnDiv.remove();
+        },
+        auto_select: false
       });
-      // google.accounts.id.prompt(); // 已關閉自動提示
+      google.accounts.id.renderButton(btnDiv, {
+        theme: "outline",
+        size: "large",
+        text: "signin_with"
+      });
     }
+
     function handleCredentialResponse(response) {
       // 解碼 JWT 取得使用者資訊（簡易版）
       var base64 = response.credential.split('.')[1];
@@ -1423,11 +1439,16 @@
     }
     // 頁面載入時初始化
     window.addEventListener("load", function() {
+      if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
       if (window.google && google.accounts) {
         google.accounts.id.initialize({
           client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
-          callback: handleCredentialResponse, auto_select: false, cancel_on_tap_outside: true
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          use_fedcm_for_prompt: false
         });
+        google.accounts.id.disableAutoSelect();
       }
     });
 
