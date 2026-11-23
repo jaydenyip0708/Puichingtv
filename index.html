@@ -299,6 +299,82 @@
       #calendar { min-height: 420px; }
     }
 
+
+    /* ===== 手機／平板介面優化 ===== */
+    @media (max-width: 991.98px) {
+      body {
+        font-size: 15px;
+      }
+      .container-fluid {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+      .card {
+        border-radius: 12px;
+      }
+      #calendar {
+        font-size: 0.78rem;
+      }
+      .fc .fc-daygrid-event {
+        font-size: 0.65rem !important;
+        padding: 2px 4px !important;
+      }
+      .fc .fc-toolbar-chunk {
+        display: flex;
+        gap: 2px;
+      }
+      .filter-box {
+        padding: 10px;
+      }
+      .filter-box .row > [class*="col-"] {
+        margin-bottom: 8px;
+      }
+      .btn, .form-control, .form-select {
+        min-height: 42px;
+      }
+      .side-menu-item {
+        padding: 14px 14px;
+        font-size: 1rem;
+      }
+    }
+    @media (max-width: 576px) {
+      .header-title-text {
+        max-width: 42vw;
+      }
+      .fc .fc-toolbar-title {
+        font-size: 0.85rem !important;
+      }
+      .fc .fc-button {
+        padding: 3px 6px !important;
+        font-size: 0.7rem !important;
+      }
+      #calendar {
+        min-height: 360px;
+      }
+      .mobile-project-card {
+        padding: 12px;
+      }
+      .card.p-3, .card.p-md-4 {
+        padding: 12px !important;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 991.98px) {
+      .bottom-nav-inner {
+        max-width: 640px;
+        height: 56px;
+      }
+      .bottom-nav-btn {
+        font-size: 0.75rem;
+      }
+      #calendar {
+        min-height: 520px;
+      }
+      .container-fluid {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+    }
+
     .admin-tabs { overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
     .admin-tabs .btn { white-space: nowrap; flex: 0 0 auto; }
     .admin-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #fff; width: 100%; max-width: 100%; box-sizing: border-box; }
