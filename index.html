@@ -1516,8 +1516,13 @@
       ov.style.display = "flex";
     }
     function onGoogleLogin(resp) {
+      console.log("onGoogleLogin resp:", resp);
       handleCredentialResponse(resp);
       var email = (googleUser && googleUser.email) ? googleUser.email : "";
+      // 除錯：顯示收到的資訊
+      if (!email) {
+        alert("Debug: googleUser=" + JSON.stringify(googleUser) + "\nresp=" + (resp ? "有" : "無"));
+      }
       if (!email && resp && resp.credential) {
         try {
           var base64 = resp.credential.split('.')[1];
