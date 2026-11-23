@@ -1517,8 +1517,19 @@
     }
     function onGoogleLogin(resp) {
       handleCredentialResponse(resp);
-      var email = googleUser && googleUser.email;
-      if (!email) return;
+      var email = (googleUser && googleUser.email) ? googleUser.email : "";
+      if (!email && resp && resp.credential) {
+        try {
+          var base64 = resp.credential.split('.')[1];
+          var json = JSON.parse(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
+          email = json.email || "";
+          googleUser = json;
+        } catch(e) {}
+      }
+      if (!email) {
+        document.getElementById("loginMsg").innerText = "無法取得 Email";
+        return;
+      }
       document.getElementById("loginMsg").innerText = "正在驗證權限...";
       callAppsScript("checkMember", { email: email }).then(function(res) {
         if (res && res.isMember) {
