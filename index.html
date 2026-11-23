@@ -951,7 +951,7 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <span id="currentUserDisplay" onclick="try{handleGoogleLogin()}catch(e){alert(e)}" style="cursor:pointer;" class="user-name">點擊登入</span>
+          <span id="currentUserDisplay" onclick="try{handleGoogleLogin()}catch(e){alert(e)}" style="cursor:pointer;" class="user-name">訪客</span>
         </div>
       </div>
     </div>
@@ -1434,7 +1434,7 @@
       var json = JSON.parse(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
       googleUser = json;
       var name = json.name || json.email || "已登入";
-      document.getElementById("currentUserDisplay").innerText = name;
+      document.getElementById("currentUserDisplay").innerText = name || "已登入";
       console.log("Logged in:", json);
     }
     // 頁面載入時初始化
@@ -1487,9 +1487,9 @@
           if (data.login) {
             var displayEl = document.getElementById("currentUserDisplay");
             if (data.login.success && data.login.memberInfo && data.login.memberInfo !== "查無此帳號對應資料") {
-              displayEl.innerText = data.login.memberInfo;
+              // displayEl.innerText = data.login.memberInfo; // 已停用
             } else {
-              displayEl.innerText = "未知成員";
+              displayEl.innerText = "訪客";
             }
           }
           // 後台權限
@@ -1535,7 +1535,7 @@
               displayEl.innerText = res.memberInfo;
               
             } else {
-              displayEl.innerText = "未知成員";
+              displayEl.innerText = "訪客";
               
             }
           } else {
