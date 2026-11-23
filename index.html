@@ -1457,7 +1457,7 @@
     function requireLogin() {
       if (isLoggedIn) return;
       // 隱藏主要內容
-      // document.body.style.visibility = "hidden";
+      // 
       if (!window.google || !google.accounts) {
         setTimeout(requireLogin, 500);
         return;
@@ -1484,6 +1484,15 @@
         }
       });
     }
+
+    
+    // 防止無痕模式卡住
+    setTimeout(function() {
+      var overlay = document.getElementById("loadingOverlay");
+      if (overlay && !overlay.classList.contains("hidden")) {
+        finishLoading();
+      }
+    }, 8000);
 
     function startInitialLoad() {
       if (loadStarted) return;
