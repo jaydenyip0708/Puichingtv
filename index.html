@@ -1466,91 +1466,105 @@
 
 
     var isLoggedIn = false;
-    function requireLogin() {
-      // 顯示登入遮罩
-      showLoginOverlay();
-      if (!window.google || !google.accounts) {
-        setTimeout(requireLogin, 400);
-        return;
-      }
-      google.accounts.id.initialize({
-        client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
-        callback: onGoogleLogin,
-        auto_select: false
-      });
-      // 渲染中央登入按鈕
-      setTimeout(function() {
-        var btn = document.getElementById("googleLoginBtn");
-        if (btn && window.google && google.accounts) {
-          try {
-            google.accounts.id.renderButton(btn, {
-              theme: "filled_blue",
-              size: "large",
-              text: "signin_with",
-              shape: "rectangular",
-              width: 280
-            });
-          } catch(e) {
-            btn.innerHTML = '<button onclick="google.accounts.id.prompt()" style="padding:10px 24px;background:#1a73e8;color:#fff;border:none;border-radius:4px;font-size:14px;cursor:pointer;">使用 Google 登入</button>';
-          }
-        } else if (btn) {
-          btn.innerHTML = '<div style="color:#dc2626;">登入服務載入中...</div>';
-        }
-      }, 500);
+    var googleAuthClient = null;
+    var GOOGLE_CLIENT_ID = "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com";
+
+    function setLoginMsg(text, isError) {
+      var el = document.getElementById("loginMsg");
+      if (!el) return;
+      el.innerText = text;
+      el.style.color = isError ? "#dc2626" : "#64748b";
     }
+
     function showLoginOverlay() {
       var ov = document.getElementById("loginOverlay");
       if (!ov) {
         ov = document.createElement("div");
         ov.id = "loginOverlay";
-        ov.style.cssText = "position:fixed;inset:0;background:#f8fafc;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;";
-        ov.innerHTML = `
-          <div style="background:#fff; padding:40px 32px; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.12); text-align:center; max-width:360px; width:90%;">
-            <div style="font-size:1.35rem; font-weight:700; margin-bottom:8px; color:#0f172a;">Puiching TV</div>
-            <div style="font-size:0.95rem; color:#64748b; margin-bottom:24px;">影片管理系統</div>
-            <div id="loginMsg" style="color:#64748b; margin-bottom:20px; font-size:0.9rem;">請使用 Google 帳號登入</div>
-            <div id="googleLoginBtn" style="display:flex; justify-content:center;"></div>
-          </div>`;
+        ov.style.cssText = "position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;";
+        ov.innerHTML = ''
+          + '<div style="background:#fff;padding:40px 32px;border-radius:16px;box-shadow:0 16px 50px rgba(0,0,0,0.18);text-align:center;max-width:380px;width:90%;">'
+          + '<div style="font-size:1.35rem;font-weight:700;margin-bottom:8px;color:#0f172a;">Puiching TV</div>'
+          + '<div style="font-size:0.95rem;color:#64748b;margin-bottom:20px;">影片管理系統</div>'
+          + '<div id="loginMsg" style="color:#64748b;margin-bottom:20px;font-size:0.95rem;">請使用 Google 帳號登入</div>'
+          + '<button type="button" id="manualLoginBtn" onclick="doGoogleLogin()" style="padding:12px 28px;background:#1a73e8;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;width:100%;">使用 Google 登入</button>'
+          + '</div>';
         document.body.appendChild(ov);
       }
       ov.style.display = "flex";
     }
-    function onGoogleLogin(resp) {
-      console.log("onGoogleLogin resp:", resp);
-      handleCredentialResponse(resp);
-      var email = (googleUser && googleUser.email) ? googleUser.email : "";
-      // 除錯：顯示收到的資訊
-      if (!email) {
-        alert("Debug: googleUser=" + JSON.stringify(googleUser) + "\nresp=" + (resp ? "有" : "無"));
-      }
-      if (!email && resp && resp.credential) {
-        try {
-          var base64 = resp.credential.split('.')[1];
-          var json = JSON.parse(atob(base64.replace(/-/g, '+').replace(/_/g, '/')));
-          email = json.email || "";
-          googleUser = json;
-        } catch(e) {}
-      }
-      if (!email) {
-        document.getElementById("loginMsg").innerText = "無法取得 Email";
+
+    function requireLogin() {
+      showLoginOverlay();
+      if (!window.google || !google.accounts || !google.accounts.oauth2) {
+        setTimeout(requireLogin, 400);
         return;
       }
-      document.getElementById("loginMsg").innerText = "正在驗證權限...";
-      callAppsScript("checkMember", { email: email }).then(function(res) {
-        if (res && res.isMember) {
-          // 是成員
-          document.getElementById("currentUserDisplay").innerText = res.name || email;
-          document.getElementById("loginOverlay").style.display = "none";
-          isLoggedIn = true;
-          callAppsScript("recordLogin", { email: email, name: res.name });
-          startInitialLoad();
-        } else {
-          document.getElementById("loginMsg").innerText = "沒有權限\n(檢查: " + (res.checkedEmail || "") + ")";
-          document.getElementById("loginMsg").style.color = "#dc2626";
-        }
-      }).catch(function() {
-        document.getElementById("loginMsg").innerText = "驗證失敗，請重試";
-      });
+      if (!googleAuthClient) {
+        googleAuthClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "openid email profile",
+          callback: function(tokenResponse) {
+            if (!tokenResponse || tokenResponse.error || !tokenResponse.access_token) {
+              setLoginMsg("登入已取消", true);
+              return;
+            }
+            setLoginMsg("正在取得帳號...");
+            fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: { Authorization: "Bearer " + tokenResponse.access_token }
+            }).then(function(r) { return r.json(); }).then(function(info) {
+              finishGoogleLogin(info.email, info.name);
+            }).catch(function() {
+              setLoginMsg("無法取得帳號資料", true);
+            });
+          },
+          error_callback: function() {
+            setLoginMsg("登入視窗被擋住，請再按一次", true);
+          }
+        });
+      }
+    }
+
+    function doGoogleLogin() {
+      if (!window.google || !google.accounts || !google.accounts.oauth2) {
+        setLoginMsg("Google 服務尚未載入，請重新整理", true);
+        return;
+      }
+      if (!googleAuthClient) {
+        requireLogin();
+        setTimeout(function() {
+          if (googleAuthClient) googleAuthClient.requestAccessToken({ prompt: "select_account" });
+        }, 400);
+        return;
+      }
+      googleAuthClient.requestAccessToken({ prompt: "select_account" });
+    }
+
+    function finishGoogleLogin(email, name) {
+      email = (email || "").trim();
+      if (!email) {
+        setLoginMsg("無法取得 Email", true);
+        return;
+      }
+      setLoginMsg("正在驗證權限...");
+      fetch(APPS_SCRIPT_URL + "?action=checkMember&email=" + encodeURIComponent(email))
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (res && res.isMember) {
+            var display = document.getElementById("currentUserDisplay");
+            if (display) display.innerText = res.name || name || email;
+            var ov = document.getElementById("loginOverlay");
+            if (ov) ov.style.display = "none";
+            isLoggedIn = true;
+            fetch(APPS_SCRIPT_URL + "?action=recordLogin&email=" + encodeURIComponent(email) + "&name=" + encodeURIComponent(res.name || name || ""));
+            if (!loadStarted) startInitialLoad();
+          } else {
+            setLoginMsg("沒有權限（" + email + "）", true);
+          }
+        })
+        .catch(function(err) {
+          setLoginMsg("驗證失敗：" + err, true);
+        });
     }
 
     function startInitialLoad() {
@@ -1584,14 +1598,10 @@
             applyFilters();
             renderCalendarEvents(globalProjectsData);
           }
-          // 帳號
-          if (data.login) {
+          // 帳號（已用 Google 登入顯示成員名字，這裡不要覆蓋）
+          if (!isLoggedIn && data.login) {
             var displayEl = document.getElementById("currentUserDisplay");
-            if (data.login.success && data.login.memberInfo && data.login.memberInfo !== "查無此帳號對應資料") {
-              // displayEl.innerText = data.login.memberInfo; // 已停用
-            } else {
-              displayEl.innerText = "訪客";
-            }
+            if (displayEl) displayEl.innerText = "訪客";
           }
           // 後台權限
           if (data.admin) {
@@ -2625,10 +2635,13 @@
     }
 
     function startInitialLoadForRefresh() {
-      // 重新整理時也顯示載入遮罩
       pendingLoads = 0;
       loadStarted = false;
-      requireLogin();
+      if (!isLoggedIn) {
+        requireLogin();
+        return;
+      }
+      startInitialLoad();
     }
 
     // ===== 手機底部導覽切換 =====
