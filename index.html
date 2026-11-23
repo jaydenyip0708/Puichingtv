@@ -1478,6 +1478,19 @@
         callback: onGoogleLogin,
         auto_select: false
       });
+      // 渲染中央登入按鈕
+      setTimeout(function() {
+        var btn = document.getElementById("googleLoginBtn");
+        if (btn && window.google) {
+          google.accounts.id.renderButton(btn, {
+            theme: "filled_blue",
+            size: "large",
+            text: "signin_with",
+            shape: "rectangular",
+            width: 280
+          });
+        }
+      }, 300);
       google.accounts.id.prompt();
     }
     function showLoginOverlay() {
@@ -1486,7 +1499,13 @@
         ov = document.createElement("div");
         ov.id = "loginOverlay";
         ov.style.cssText = "position:fixed;inset:0;background:#f8fafc;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;";
-        ov.innerHTML = '<div style="font-size:1.2rem;font-weight:700;margin-bottom:16px;">Puiching TV 影片管理系統</div><div id="loginMsg" style="color:#64748b;">請先登入 Google 帳號</div><div id="googleLoginBtn" style="margin-top:20px;"></div>';
+        ov.innerHTML = `
+          <div style="background:#fff; padding:40px 32px; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.12); text-align:center; max-width:360px; width:90%;">
+            <div style="font-size:1.35rem; font-weight:700; margin-bottom:8px; color:#0f172a;">Puiching TV</div>
+            <div style="font-size:0.95rem; color:#64748b; margin-bottom:24px;">影片管理系統</div>
+            <div id="loginMsg" style="color:#64748b; margin-bottom:20px; font-size:0.9rem;">請使用 Google 帳號登入</div>
+            <div id="googleLoginBtn" style="display:flex; justify-content:center;"></div>
+          </div>`;
         document.body.appendChild(ov);
       }
       ov.style.display = "flex";
