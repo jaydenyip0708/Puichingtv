@@ -3243,17 +3243,23 @@
   <style>
     @media (max-width: 991.98px) {
       html { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }
-      body, .card, .filter-box, .mobile-project-card, .form-label, .btn, button, input, select, textarea, .choices__inner, .choices__item, .fc, .fc-event, .fc .fc-toolbar-title, .fc .fc-button, .fc .fc-daygrid-day-number, .fc .fc-col-header-cell-cushion, .bottom-nav-btn, #currentUserDisplay, .header-title-text, .side-menu-item, .status-badge, .small, .text-muted {
-        font-size: 12.5px !important;
-      }
-      .header-title-text, .fc .fc-toolbar-title, .mobile-project-card .fw-bold, .modal-title {
-        font-size: 13.5px !important;
-      }
-      .btn, button, .form-control, .form-select, .choices__inner {
-        min-height: 36px !important;
-      }
-      .bottom-nav-inner { height: 50px !important; }
-      .fc .fc-button { min-height: 32px !important; padding: 4px 8px !important; }
+      .app-header { padding: 4px 8px !important; }
+      #hamburgerBtn svg { width: 18px !important; height: 18px !important; }
+      .header-title-text { font-size: 12px !important; }
+      .brand-logo, .brand-fallback { height: 22px !important; width: 22px !important; min-width: 22px !important; flex: 0 0 22px !important; }
+      #currentUserDisplay { font-size: 11px !important; padding: 2px 6px !important; }
+      .fc .fc-toolbar { margin-bottom: 4px !important; gap: 4px !important; }
+      .fc .fc-toolbar-title { font-size: 13px !important; }
+      .fc .fc-button { min-height: 26px !important; font-size: 11px !important; padding: 2px 6px !important; }
+      .fc .fc-col-header-cell-cushion,
+      .fc .fc-daygrid-day-number { font-size: 11px !important; padding: 2px !important; }
+      .fc-event, .fc .fc-daygrid-event { font-size: 10px !important; padding: 1px 3px !important; line-height: 1.2 !important; }
+      .fc .fc-daygrid-day-frame { min-height: 52px !important; }
+      .bottom-nav-inner { height: 44px !important; }
+      .bottom-nav-btn { font-size: 10px !important; gap: 1px !important; padding: 2px 0 !important; }
+      .bottom-nav-btn .nav-icon { width: 16px !important; height: 16px !important; }
+      .bottom-nav-btn .nav-icon svg { width: 16px !important; height: 16px !important; }
+      body { padding-bottom: calc(44px + env(safe-area-inset-bottom, 0px)) !important; }
     }
   </style>
 </body>
