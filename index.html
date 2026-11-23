@@ -1386,7 +1386,7 @@
       sheetRowModal = new bootstrap.Modal(document.getElementById('sheetRowModal'));
 
       initCalendar();
-      startInitialLoad(); // requireLogin();
+      requireLogin();
     });
 
 
@@ -1453,37 +1453,7 @@
     });
 
 
-    var isLoggedIn = false;
-    function requireLogin() {
-      if (isLoggedIn) return;
-      // 隱藏主要內容
-      // 
-      if (!window.google || !google.accounts) {
-        setTimeout(requireLogin, 500);
-        return;
-      }
-      google.accounts.id.initialize({
-        client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
-        callback: function(resp) {
-          handleCredentialResponse(resp);
-          isLoggedIn = true;
-          document.body.style.visibility = "visible";
-          // 記錄登入
-          if (googleUser && googleUser.email) {
-            callAppsScript("recordLogin", { email: googleUser.email, name: googleUser.name });
-          }
-          startInitialLoad();
-        },
-        auto_select: false
-      });
-      google.accounts.id.prompt(); // 強制顯示
-      /*google.accounts.id.prompt(function(notification) {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // 如果沒自動跳出，顯示按鈕
-          handleGoogleLogin();
-        }
-      });
-    }
+    
 
     
     // 防止無痕模式卡住
@@ -1493,6 +1463,55 @@
         finishLoading();
       }
     }, 8000);
+
+
+    var isLoggedIn = false;
+    function requireLogin() {
+      // 顯示登入遮罩
+      showLoginOverlay();
+      if (!window.google || !google.accounts) {
+        setTimeout(requireLogin, 400);
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
+        callback: onGoogleLogin,
+        auto_select: false
+      });
+      google.accounts.id.prompt();
+    }
+    function showLoginOverlay() {
+      var ov = document.getElementById("loginOverlay");
+      if (!ov) {
+        ov = document.createElement("div");
+        ov.id = "loginOverlay";
+        ov.style.cssText = "position:fixed;inset:0;background:#f8fafc;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;";
+        ov.innerHTML = '<div style="font-size:1.2rem;font-weight:700;margin-bottom:16px;">Puiching TV 影片管理系統</div><div id="loginMsg" style="color:#64748b;">請先登入 Google 帳號</div><div id="googleLoginBtn" style="margin-top:20px;"></div>';
+        document.body.appendChild(ov);
+      }
+      ov.style.display = "flex";
+    }
+    function onGoogleLogin(resp) {
+      handleCredentialResponse(resp);
+      var email = googleUser && googleUser.email;
+      if (!email) return;
+      document.getElementById("loginMsg").innerText = "正在驗證權限...";
+      callAppsScript("checkMember", { email: email }).then(function(res) {
+        if (res && res.isMember) {
+          // 是成員
+          document.getElementById("currentUserDisplay").innerText = res.name || email;
+          document.getElementById("loginOverlay").style.display = "none";
+          isLoggedIn = true;
+          callAppsScript("recordLogin", { email: email, name: res.name });
+          requireLogin();
+        } else {
+          document.getElementById("loginMsg").innerText = "沒有權限";
+          document.getElementById("loginMsg").style.color = "#dc2626";
+        }
+      }).catch(function() {
+        document.getElementById("loginMsg").innerText = "驗證失敗，請重試";
+      });
+    }
 
     function startInitialLoad() {
       if (loadStarted) return;
@@ -2569,7 +2588,7 @@
       // 重新整理時也顯示載入遮罩
       pendingLoads = 0;
       loadStarted = false;
-      startInitialLoad(); // requireLogin();
+      requireLogin();
     }
 
     // ===== 手機底部導覽切換 =====
