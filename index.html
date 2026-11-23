@@ -1522,7 +1522,7 @@
           document.getElementById("loginOverlay").style.display = "none";
           isLoggedIn = true;
           callAppsScript("recordLogin", { email: email, name: res.name });
-          requireLogin();
+          startInitialLoad();
         } else {
           document.getElementById("loginMsg").innerText = "沒有權限";
           document.getElementById("loginMsg").style.color = "#dc2626";
