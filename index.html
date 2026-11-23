@@ -1481,17 +1481,22 @@
       // 渲染中央登入按鈕
       setTimeout(function() {
         var btn = document.getElementById("googleLoginBtn");
-        if (btn && window.google) {
-          google.accounts.id.renderButton(btn, {
-            theme: "filled_blue",
-            size: "large",
-            text: "signin_with",
-            shape: "rectangular",
-            width: 280
-          });
+        if (btn && window.google && google.accounts) {
+          try {
+            google.accounts.id.renderButton(btn, {
+              theme: "filled_blue",
+              size: "large",
+              text: "signin_with",
+              shape: "rectangular",
+              width: 280
+            });
+          } catch(e) {
+            btn.innerHTML = '<button onclick="google.accounts.id.prompt()" style="padding:10px 24px;background:#1a73e8;color:#fff;border:none;border-radius:4px;font-size:14px;cursor:pointer;">使用 Google 登入</button>';
+          }
+        } else if (btn) {
+          btn.innerHTML = '<div style="color:#dc2626;">登入服務載入中...</div>';
         }
-      }, 300);
-      google.accounts.id.prompt();
+      }, 500);
     }
     function showLoginOverlay() {
       var ov = document.getElementById("loginOverlay");
