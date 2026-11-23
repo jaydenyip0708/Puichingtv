@@ -1386,7 +1386,7 @@
       sheetRowModal = new bootstrap.Modal(document.getElementById('sheetRowModal'));
 
       initCalendar();
-      startInitialLoad();
+      requireLogin();
     });
 
 
@@ -1451,6 +1451,38 @@
         google.accounts.id.disableAutoSelect();
       }
     });
+
+
+    var isLoggedIn = false;
+    function requireLogin() {
+      if (isLoggedIn) return;
+      // 隱藏主要內容
+      document.body.style.visibility = "hidden";
+      if (!window.google || !google.accounts) {
+        setTimeout(requireLogin, 500);
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com",
+        callback: function(resp) {
+          handleCredentialResponse(resp);
+          isLoggedIn = true;
+          document.body.style.visibility = "visible";
+          // 記錄登入
+          if (googleUser && googleUser.email) {
+            callAppsScript("recordLogin", { email: googleUser.email, name: googleUser.name });
+          }
+          requireLogin();
+        },
+        auto_select: false
+      });
+      google.accounts.id.prompt(function(notification) {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // 如果沒自動跳出，顯示按鈕
+          handleGoogleLogin();
+        }
+      });
+    }
 
     function startInitialLoad() {
       if (loadStarted) return;
@@ -2527,7 +2559,7 @@
       // 重新整理時也顯示載入遮罩
       pendingLoads = 0;
       loadStarted = false;
-      startInitialLoad();
+      requireLogin();
     }
 
     // ===== 手機底部導覽切換 =====
