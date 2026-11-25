@@ -1567,7 +1567,30 @@
       var ov = document.getElementById("loginOverlay");
       if (ov) ov.style.display = "none";
       isLoggedIn = true;
+      refreshMemberFromSheet(session.email, session.name);
+      recordLoginVisit(session.email, session.name);
       if (!loadStarted) startInitialLoad();
+    }
+
+    function refreshMemberFromSheet(email, fallbackName) {
+      if (!email) return;
+      fetch(APPS_SCRIPT_URL + "?action=checkMember&email=" + encodeURIComponent(email))
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (!res || !res.isMember) return;
+          var memberName = res.name || fallbackName || email;
+          var display = document.getElementById("currentUserDisplay");
+          if (display) display.innerText = memberName;
+          var saved = readLoginSession();
+          if (saved) saveLoginSession(saved.email, memberName);
+        })
+        .catch(function() {});
+    }
+
+    function recordLoginVisit(email, name) {
+      if (!email) return;
+      fetch(APPS_SCRIPT_URL + "?action=recordLogin&email=" + encodeURIComponent(email) + "&name=" + encodeURIComponent(name || ""))
+        .catch(function() {});
     }
 
     function requireLogin() {
@@ -1639,7 +1662,7 @@
             if (ov) ov.style.display = "none";
             isLoggedIn = true;
             saveLoginSession(email, memberName);
-            fetch(APPS_SCRIPT_URL + "?action=recordLogin&email=" + encodeURIComponent(email) + "&name=" + encodeURIComponent(memberName));
+            recordLoginVisit(email, memberName);
             if (!loadStarted) startInitialLoad();
           } else {
             setLoginMsg("沒有權限（" + email + "）", true);
@@ -1876,20 +1899,26 @@
 
     function openAdminPanel() {
       if (!currentUserIsAdmin) return;
+      closeActivityPanel();
       var main = document.querySelector(".container-fluid.pb-5");
-      if (main) main.style.display = "none";
+      if (main && main.id !== "adminPanel") main.style.display = "none";
       var panel = document.getElementById("adminPanel");
       panel.style.display = "block";
+      panel.style.position = "";
+      panel.style.inset = "";
+      panel.style.zIndex = "";
       panel.style.animation = "none";
-      panel.offsetHeight; // reflow
+      panel.offsetHeight;
       panel.style.animation = "adminFadeIn 0.25s ease-out";
       window.scrollTo(0, 0);
       switchAdminTab("projects");
     }
 
     function closeAdminPanel() {
-      document.getElementById("adminPanel").style.display = "none";
-      document.querySelector(".container-fluid.pb-5").style.display = "block";
+      var panel = document.getElementById("adminPanel");
+      if (panel) panel.style.display = "none";
+      var main = document.querySelector(".container-fluid.pb-5");
+      if (main && main.id !== "adminPanel" && main.id !== "activityPanel") main.style.display = "block";
       if (calendar) setTimeout(function() { calendar.updateSize(); }, 150);
     }
 
@@ -2864,7 +2893,8 @@
     }
 
     function openActivityPanel() {
-      closeAdminPanel();
+      var admin = document.getElementById("adminPanel");
+      if (admin) admin.style.display = "none";
       var panel = document.getElementById("activityPanel");
       var header = document.querySelector(".app-header");
       var headerH = header ? header.offsetHeight : 60;
@@ -2874,7 +2904,7 @@
         panel.style.top = headerH + "px";
         panel.style.left = "0";
         panel.style.right = "0";
-        panel.style.bottom = "0";
+        panel.style.bottom = "54px";
         panel.style.zIndex = "1025";
         panel.style.background = "#f8fafc";
         panel.style.overflowY = "auto";
@@ -3234,7 +3264,7 @@
     @media (max-width: 991.98px) {
       html { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }
       body { font-size: 14px; }
-      .app-header { padding: 6px 10px !important; margin-bottom: 8px !important; }
+      .app-header { padding: 6px 10px 6px 18px !important; margin-bottom: 8px !important; }
       .app-header .container-fluid { gap: 8px; }
       #hamburgerBtn { display: none !important; }
       .brand-logo, .brand-fallback {
