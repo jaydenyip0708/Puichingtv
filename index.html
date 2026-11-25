@@ -3155,8 +3155,7 @@
       body { font-size: 14px; }
       .app-header { padding: 6px 10px !important; margin-bottom: 8px !important; }
       .app-header .container-fluid { gap: 8px; }
-      #hamburgerBtn { padding: 2px !important; min-height: 0 !important; }
-      #hamburgerBtn svg { width: 20px !important; height: 20px !important; }
+      #hamburgerBtn { display: none !important; }
       .brand-logo, .brand-fallback {
         height: 24px !important; width: 24px !important; min-width: 24px !important; flex: 0 0 24px !important;
       }
@@ -3226,9 +3225,9 @@
       #calendar .fc-daygrid-event-harness { margin: 0 !important; padding: 0 !important; }
       #calendar .fc-daygrid-event { margin: 3px 2px 0 !important; padding: 0 !important; background: transparent !important; border: none !important; }
       #calendar .cal-chip {
-        display: block; font-size: 11px !important; line-height: 1.25 !important; font-weight: 600 !important;
+        display: block; font-size: 11px !important; line-height: 1.2 !important; font-weight: 600 !important;
         color: #fff; border-radius: 5px; padding: 5px 4px;
-        white-space: normal; overflow: visible; text-overflow: clip; word-break: break-all;
+        white-space: nowrap; overflow: hidden; text-overflow: clip;
       }
     }
   </style>
