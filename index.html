@@ -735,7 +735,7 @@
 
     /* 帳號人頭 */
     .user-chip {
-      display: none !important;
+      display: flex;
       align-items: center;
       gap: 8px;
       background: #f8fafc;
@@ -980,7 +980,7 @@
         <h6 class="mb-0 fw-bold header-title-text" style="letter-spacing: -0.3px;">Puiching TV 影片管理系統 </h6>
       </div>
       <div class="d-flex gap-2 align-items-center">
-        <div class="user-chip" id="userChip" style="display:none;">
+        <div class="user-chip" id="userChip">
           <div class="user-avatar" id="userAvatar">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -3252,7 +3252,7 @@
         line-height: 1.25 !important;
         font-weight: 600 !important;
       }
-      .user-chip { display: none !important; }
+      .user-chip { display: flex !important; gap: 4px !important; padding: 2px 8px 2px 2px !important; }
       .user-avatar { width: 22px !important; height: 22px !important; }
       #currentUserDisplay, .user-name {
         font-size: 12px !important;
