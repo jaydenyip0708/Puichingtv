@@ -762,12 +762,12 @@
       font-weight: 600;
       color: #0f172a;
       white-space: nowrap;
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      max-width: none;
+      overflow: visible;
+      text-overflow: clip;
     }
     @media (max-width: 576px) {
-      .user-name { max-width: 80px; font-size: 0.75rem; }
+      .user-name { max-width: none; font-size: 0.75rem; }
       .user-avatar { width: 24px; height: 24px; font-size: 11px; }
     }
 
@@ -3599,12 +3599,15 @@
         line-height: 1.25 !important;
         font-weight: 600 !important;
       }
-      .user-chip { display: flex !important; gap: 4px !important; padding: 2px 8px 2px 2px !important; }
+      .user-chip { display: flex !important; flex-shrink: 0; gap: 4px !important; padding: 2px 8px 2px 2px !important; }
       .user-avatar { width: 22px !important; height: 22px !important; }
       #currentUserDisplay, .user-name {
         font-size: 12px !important;
         padding: 0 !important;
-        max-width: 64px !important;
+        max-width: none !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
       }
       .container-fluid.pb-5, #adminPanel, #activityPanel {
         padding-left: 10px !important;
