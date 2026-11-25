@@ -2947,7 +2947,9 @@
         var chips = events.map(function(ev) {
           return '<button type="button" class="acal-chip" onclick="openActivityForm(' + ev.rowIndex + ')">' + (ev.time ? ev.time + " " : "") + ev.name + '</button>';
         }).join("");
-        cells += '<div class="acal-day"><div class="acal-num">' + d + '</div>' + chips + '</div>';
+        var today = new Date();
+        var isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
+        cells += '<div class="acal-day' + (isToday ? ' today' : '') + '"><div class="acal-num">' + d + '</div>' + chips + '</div>';
       }
       el.innerHTML = '<div class="acal">'
         + '<div class="acal-bar"><button type="button" onclick="shiftActivityMonth(-1)">‹</button>'
@@ -2964,17 +2966,45 @@
       var main = document.querySelector(".container-fluid.pb-5");
       if (main && main.id !== "profilePanel") main.style.display = "none";
       var panel = document.getElementById("profilePanel");
-      if (panel) panel.style.display = "block";
+      var header = document.querySelector(".app-header");
+      var headerH = header ? header.offsetHeight : 60;
+      if (panel) {
+        panel.style.display = "block";
+        panel.style.position = "fixed";
+        panel.style.top = headerH + "px";
+        panel.style.left = "0";
+        panel.style.right = "0";
+        panel.style.bottom = "54px";
+        panel.style.zIndex = "1025";
+        panel.style.background = "#f8fafc";
+        panel.style.overflowY = "auto";
+        panel.style.padding = "16px";
+      }
       document.querySelectorAll(".bottom-nav-btn").forEach(function(btn) {
         btn.classList.toggle("active", btn.getAttribute("data-view") === "profile");
       });
-      renderProfile();
+      if (!activityData.length) {
+        callAppsScript("getActivities").then(function(res) {
+          if (res && res.success) activityData = res.data || [];
+          renderProfile();
+        }).catch(function() { renderProfile(); });
+      } else {
+        renderProfile();
+      }
       window.scrollTo(0, 0);
     }
 
     function closeProfilePanel() {
       var panel = document.getElementById("profilePanel");
-      if (panel) panel.style.display = "none";
+      if (panel) {
+        panel.style.display = "none";
+        panel.style.position = "";
+        panel.style.inset = "";
+        panel.style.zIndex = "";
+        panel.style.background = "";
+        panel.style.overflowY = "";
+        panel.style.padding = "";
+      }
     }
 
     function renderProfile() {
@@ -3000,6 +3030,23 @@
           var dates = (a.slots || []).map(function(s) { return s.date; }).filter(Boolean).join("、");
           return '<div class="me-item"><div class="me-item-name">' + (a.name || "未命名") + '</div><div class="me-item-sub">' + (a.item || "") + (dates ? " · " + dates : "") + '</div></div>';
         }).join("") : '<div class="me-empty">暫時沒有你參與的拍攝</div>';
+      }
+
+      var leaveEl = document.getElementById("profileLeave");
+      if (leaveEl) {
+        var leaves = [];
+        acts.forEach(function(a) {
+          (a.slots || []).forEach(function(s) {
+            var people = [].concat(s.leaders || [], s.coordinators || [], s.leader ? [s.leader] : [], s.coordinator ? [s.coordinator] : []);
+            if (people.indexOf(name) === -1) return;
+            if (s.leaveStart || s.leaveEnd) {
+              leaves.push((a.name || "未命名") + " · " + (s.date || "") + " · 第" + (s.leaveStart || "-") + "–" + (s.leaveEnd || "-") + "節");
+            }
+          });
+        });
+        leaveEl.innerHTML = leaves.length ? leaves.map(function(t) {
+          return '<div class="me-item"><div class="me-item-name">' + t + '</div></div>';
+        }).join("") : '<div class="me-empty">暫時沒有公假</div>';
       }
 
       var projects = (globalProjectsData || []).filter(function(p) {
@@ -3056,7 +3103,7 @@
         panel.style.padding = "";
       }
       document.querySelectorAll(".container-fluid.pb-5").forEach(function(el) {
-        if (el.id !== "activityPanel" && el.id !== "adminPanel") el.style.display = "";
+        if (el.id !== "activityPanel" && el.id !== "adminPanel" && el.id !== "profilePanel") el.style.display = "";
       });
     }
 
@@ -3343,6 +3390,10 @@
         <div id="profileActivities"></div>
       </div>
       <div class="me-section">
+        <div class="me-title">我的公假</div>
+        <div id="profileLeave"></div>
+      </div>
+      <div class="me-section">
         <div class="me-title">我的專案</div>
         <div id="profileProjects"></div>
       </div>
@@ -3440,6 +3491,7 @@
     .acal-week { color: #94a3b8; font-size: 12px; text-align: center; margin-bottom: 4px; }
     .acal-day { min-height: 72px; background: #f8fafc; border-radius: 8px; padding: 4px; }
     .acal-day.muted { background: transparent; }
+    .acal-day.today { outline: 2px solid #0f172a; }
     .acal-num { font-size: 12px; font-weight: 700; color: #334155; }
     .acal-chip { display: block; width: 100%; margin-top: 3px; border: none; background: #0f172a; color: #fff; border-radius: 4px; font-size: 10px; padding: 2px 3px; text-align: left; white-space: nowrap; overflow: hidden; }
     .me-card { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e8edf3; border-radius: 16px; padding: 16px; margin-bottom: 14px; }
