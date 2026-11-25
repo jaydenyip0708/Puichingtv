@@ -735,7 +735,7 @@
 
     /* 帳號人頭 */
     .user-chip {
-      display: flex;
+      display: none !important;
       align-items: center;
       gap: 8px;
       background: #f8fafc;
@@ -980,14 +980,14 @@
         <h6 class="mb-0 fw-bold header-title-text" style="letter-spacing: -0.3px;">Puiching TV 影片管理系統 </h6>
       </div>
       <div class="d-flex gap-2 align-items-center">
-        <div class="user-chip" id="userChip">
+        <div class="user-chip" id="userChip" style="display:none;">
           <div class="user-avatar" id="userAvatar">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <span id="currentUserDisplay" onclick="try{handleGoogleLogin()}catch(e){alert(e)}" style="cursor:pointer;" class="user-name">訪客</span>
+          <span id="currentUserDisplay" class="user-name"></span>
         </div>
       </div>
     </div>
@@ -1533,7 +1533,49 @@
       ov.style.display = "flex";
     }
 
+    var LOGIN_KEY = "puiching_login";
+    var LOGIN_DAYS = 7;
+
+    function saveLoginSession(email, name) {
+      try {
+        localStorage.setItem(LOGIN_KEY, JSON.stringify({
+          email: email,
+          name: name,
+          expires: Date.now() + LOGIN_DAYS * 24 * 60 * 60 * 1000
+        }));
+      } catch (e) {}
+    }
+
+    function readLoginSession() {
+      try {
+        var raw = localStorage.getItem(LOGIN_KEY);
+        if (!raw) return null;
+        var data = JSON.parse(raw);
+        if (!data || !data.email || !data.expires || Date.now() > data.expires) {
+          localStorage.removeItem(LOGIN_KEY);
+          return null;
+        }
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function applySavedLogin(session) {
+      var display = document.getElementById("currentUserDisplay");
+      if (display) display.innerText = session.name || session.email;
+      var ov = document.getElementById("loginOverlay");
+      if (ov) ov.style.display = "none";
+      isLoggedIn = true;
+      if (!loadStarted) startInitialLoad();
+    }
+
     function requireLogin() {
+      var saved = readLoginSession();
+      if (saved) {
+        applySavedLogin(saved);
+        return;
+      }
       showLoginOverlay();
       if (!window.google || !google.accounts || !google.accounts.oauth2) {
         setTimeout(requireLogin, 400);
@@ -1590,12 +1632,14 @@
         .then(function(r) { return r.json(); })
         .then(function(res) {
           if (res && res.isMember) {
+            var memberName = res.name || name || email;
             var display = document.getElementById("currentUserDisplay");
-            if (display) display.innerText = res.name || name || email;
+            if (display) display.innerText = memberName;
             var ov = document.getElementById("loginOverlay");
             if (ov) ov.style.display = "none";
             isLoggedIn = true;
-            fetch(APPS_SCRIPT_URL + "?action=recordLogin&email=" + encodeURIComponent(email) + "&name=" + encodeURIComponent(res.name || name || ""));
+            saveLoginSession(email, memberName);
+            fetch(APPS_SCRIPT_URL + "?action=recordLogin&email=" + encodeURIComponent(email) + "&name=" + encodeURIComponent(memberName));
             if (!loadStarted) startInitialLoad();
           } else {
             setLoginMsg("沒有權限（" + email + "）", true);
@@ -3208,7 +3252,7 @@
         line-height: 1.25 !important;
         font-weight: 600 !important;
       }
-      .user-chip { gap: 4px !important; padding: 2px 8px 2px 2px !important; }
+      .user-chip { display: none !important; }
       .user-avatar { width: 22px !important; height: 22px !important; }
       #currentUserDisplay, .user-name {
         font-size: 12px !important;
