@@ -2923,7 +2923,7 @@
     }
 
 
-    var activityCalDate = new Date();
+    var activityCalendar = null;
 
     function showActivityMode(mode) {
       var list = document.getElementById("activityList");
@@ -2937,46 +2937,62 @@
       if (mode === "calendar") renderActivityCalendar();
     }
 
-    function shiftActivityMonth(delta) {
-      activityCalDate.setMonth(activityCalDate.getMonth() + delta);
-      renderActivityCalendar();
-    }
-
-    function renderActivityCalendar() {
-      var el = document.getElementById("activityCalendar");
-      if (!el) return;
-      var year = activityCalDate.getFullYear();
-      var month = activityCalDate.getMonth();
-      var first = new Date(year, month, 1);
-      var start = first.getDay();
-      var days = new Date(year, month + 1, 0).getDate();
-      var map = {};
+    function activityEvents() {
+      var events = [];
       (activityData || []).forEach(function(a) {
         (a.slots || []).forEach(function(s) {
           var parsed = parseSlotDate(s.date || "");
           if (!parsed.date) return;
-          if (!map[parsed.date]) map[parsed.date] = [];
-          map[parsed.date].push({ name: a.name || "未命名", item: a.item || "", time: (parsed.start && parsed.end) ? (parsed.start + "-" + parsed.end) : "", rowIndex: a.rowIndex });
+          var title = a.name || "未命名";
+          if (parsed.start && parsed.end) title = parsed.start + "-" + parsed.end + " " + title;
+          events.push({
+            title: title,
+            start: parsed.date,
+            allDay: true,
+            backgroundColor: "#0f172a",
+            borderColor: "#0f172a",
+            extendedProps: { rowIndex: a.rowIndex }
+          });
         });
       });
-      var cells = "";
-      for (var i = 0; i < start; i++) cells += '<div class="acal-day muted"></div>';
-      for (var d = 1; d <= days; d++) {
-        var key = year + "-" + String(month + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-        var events = map[key] || [];
-        var chips = events.map(function(ev) {
-          return '<button type="button" class="acal-chip" onclick="openActivityForm(' + ev.rowIndex + ')">' + (ev.time ? ev.time + " " : "") + ev.name + '</button>';
-        }).join("");
-        var today = new Date();
-        var isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
-        cells += '<div class="acal-day' + (isToday ? ' today' : '') + '"><div class="acal-num">' + d + '</div>' + chips + '</div>';
+      return events;
+    }
+
+    function renderActivityCalendar() {
+      var el = document.getElementById("activityCalendar");
+      if (!el || typeof FullCalendar === "undefined") return;
+      if (!activityCalendar) {
+        activityCalendar = new FullCalendar.Calendar(el, {
+          initialView: "dayGridMonth",
+          locale: "zh-tw",
+          headerToolbar: { left: "prev,next today", center: "title", right: "" },
+          buttonText: { today: "今天", month: "月" },
+          height: "auto",
+          contentHeight: "auto",
+          fixedWeekCount: false,
+          dayMaxEventRows: 2,
+          eventDisplay: "block",
+          eventContent: function(arg) {
+            var chip = document.createElement("div");
+            chip.className = "cal-chip";
+            chip.setAttribute("data-full", arg.event.title || "");
+            chip.textContent = arg.event.title || "";
+            chip.style.background = arg.event.backgroundColor || "#0f172a";
+            return { domNodes: [chip] };
+          },
+          eventDidMount: function(info) {
+            var chip = info.el.querySelector(".cal-chip");
+            if (chip) fitChipText(chip);
+          },
+          eventClick: function(info) {
+            openActivityForm(info.event.extendedProps.rowIndex);
+          }
+        });
+        activityCalendar.render();
       }
-      el.innerHTML = '<div class="acal">'
-        + '<div class="acal-bar"><button type="button" onclick="shiftActivityMonth(-1)">‹</button>'
-        + '<div>' + year + '年' + (month + 1) + '月</div>'
-        + '<button type="button" onclick="shiftActivityMonth(1)">›</button></div>'
-        + '<div class="acal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>'
-        + '<div class="acal-grid">' + cells + '</div></div>';
+      activityCalendar.removeAllEvents();
+      activityCalendar.addEventSource(activityEvents());
+      setTimeout(function() { activityCalendar.updateSize(); }, 50);
     }
 
     function openProfilePanel() {
@@ -3583,7 +3599,7 @@
       body { font-size: 14px; }
       .app-header { padding: 6px 10px 6px 18px !important; margin-bottom: 8px !important; }
       .app-header .container-fluid { gap: 8px; }
-      #hamburgerBtn { display: inline-flex !important; }
+      #hamburgerBtn { display: none !important; }
       .brand-logo, .brand-fallback {
         height: 24px !important; width: 24px !important; min-width: 24px !important; flex: 0 0 24px !important;
       }
@@ -3640,22 +3656,23 @@
       body { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)) !important; }
       .app-footer { padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px)) !important; }
 
-      #calendar, #calendar .fc { font-size: 12px !important; font-weight: 700 !important; }
-      #calendar { min-height: 0 !important; }
-      #calendar .fc-toolbar { margin-bottom: 6px !important; gap: 4px !important; flex-wrap: nowrap !important; }
-      #calendar .fc-toolbar-title { font-size: 14px !important; font-weight: 700 !important; }
-      #calendar .fc-button, #calendar .fc-button-primary {
+      #calendar, #calendar .fc, #activityCalendar, #activityCalendar .fc { font-size: 12px !important; font-weight: 700 !important; }
+      #calendar, #activityCalendar { min-height: 0 !important; }
+      #calendar .fc-toolbar, #activityCalendar .fc-toolbar { margin-bottom: 6px !important; gap: 4px !important; flex-wrap: nowrap !important; }
+      #calendar .fc-toolbar-title, #activityCalendar .fc-toolbar-title { font-size: 14px !important; font-weight: 700 !important; }
+      #calendar .fc-button, #calendar .fc-button-primary, #activityCalendar .fc-button, #activityCalendar .fc-button-primary {
         min-height: 0 !important; height: auto !important;
         font-size: 12px !important; font-weight: 700 !important; padding: 3px 8px !important; line-height: 1.2 !important;
       }
-      #calendar .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 700 !important; padding: 4px 2px !important; }
-      #calendar .fc-daygrid-day-number { font-size: 12px !important; padding: 2px 3px 1px !important; font-weight: 700 !important; }
+      #calendar .fc-col-header-cell-cushion, #activityCalendar .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 700 !important; padding: 4px 2px !important; }
+      #calendar .fc-daygrid-day-number, #activityCalendar .fc-daygrid-day-number { font-size: 12px !important; padding: 2px 3px 1px !important; font-weight: 700 !important; }
       #calendar .fc-daygrid-day-frame { min-height: 78px !important; }
-      #calendar .fc-daygrid-day-top,
-      #calendar .fc-daygrid-day-events,
-      #calendar .fc-daygrid-event-harness { margin: 0 !important; padding: 0 !important; }
-      #calendar .fc-daygrid-event { margin: 3px 2px 0 !important; padding: 0 !important; background: transparent !important; border: none !important; }
-      #calendar .cal-chip {
+      #activityCalendar .fc-daygrid-day-frame { height: 78px !important; min-height: 78px !important; max-height: 78px !important; overflow: hidden !important; }
+      #calendar .fc-daygrid-day-top, #activityCalendar .fc-daygrid-day-top,
+      #calendar .fc-daygrid-day-events, #activityCalendar .fc-daygrid-day-events,
+      #calendar .fc-daygrid-event-harness, #activityCalendar .fc-daygrid-event-harness { margin: 0 !important; padding: 0 !important; }
+      #calendar .fc-daygrid-event, #activityCalendar .fc-daygrid-event { margin: 3px 2px 0 !important; padding: 0 !important; background: transparent !important; border: none !important; }
+      #calendar .cal-chip, #activityCalendar .cal-chip {
         display: block; box-sizing: border-box; font-size: 11px !important; line-height: 1.2 !important; font-weight: 700 !important;
         color: #fff; border-radius: 5px; padding: 5px 4px;
         white-space: nowrap; overflow: hidden;
