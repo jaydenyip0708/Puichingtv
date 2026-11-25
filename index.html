@@ -354,8 +354,8 @@
     #loadingOverlay {
       position: fixed;
       inset: 0;
-      z-index: 99999;
-      background: rgba(248, 250, 252, 0.92);
+      z-index: 99998;
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -368,6 +368,8 @@
     #loadingOverlay.hidden {
       display: none;
     }
+    .app-header, .container-fluid.pb-5, #bottomNav { visibility: hidden; }
+    body.app-ready .app-header, body.app-ready .container-fluid.pb-5, body.app-ready #bottomNav { visibility: visible; }
     .loading-spinner {
       width: 48px;
       height: 48px;
@@ -898,7 +900,7 @@
 <body>
 
   <!-- 全螢幕載入遮罩：資料載入完成前封鎖所有操作 -->
-  <div id="loadingOverlay">
+  <div id="loadingOverlay" class="hidden">
     <div class="loading-spinner"></div>
     <div class="loading-text">載入中...</div>
     <div class="loading-sub" id="loadingStatus">正在取得帳號與權限資料</div>
@@ -1411,6 +1413,7 @@
     }
 
     function finishLoading() {
+      if (!isLoggedIn) return;
       pendingLoads = Math.max(0, pendingLoads - 1);
       if (pendingLoads <= 0) {
         var overlay = document.getElementById('loadingOverlay');
@@ -1521,7 +1524,35 @@
       el.style.color = isError ? "#dc2626" : "#64748b";
     }
 
+    function showBlankScreen() {
+      document.body.classList.remove("app-ready");
+      document.body.style.background = "#ffffff";
+      var loading = document.getElementById("loadingOverlay");
+      if (loading) loading.classList.add("hidden");
+      ["adminPanel", "activityPanel", "profilePanel"].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = "none";
+      });
+      var main = document.querySelector(".container-fluid.pb-5");
+      if (main) main.style.visibility = "hidden";
+      var header = document.querySelector(".app-header");
+      if (header) header.style.visibility = "hidden";
+      var nav = document.getElementById("bottomNav");
+      if (nav) nav.style.visibility = "hidden";
+    }
+
+    function showAppChrome() {
+      document.body.classList.add("app-ready");
+      var main = document.querySelector(".container-fluid.pb-5");
+      if (main) main.style.visibility = "";
+      var header = document.querySelector(".app-header");
+      if (header) header.style.visibility = "";
+      var nav = document.getElementById("bottomNav");
+      if (nav) nav.style.visibility = "";
+    }
+
     function showLoginOverlay() {
+      showBlankScreen();
       var ov = document.getElementById("loginOverlay");
       if (!ov) {
         ov = document.createElement("div");
@@ -1576,6 +1607,7 @@
       var ov = document.getElementById("loginOverlay");
       if (ov) ov.style.display = "none";
       isLoggedIn = true;
+      showAppChrome();
       refreshMemberFromSheet(session.email, session.name);
       recordLoginVisit(session.email, session.name);
       if (!loadStarted) startInitialLoad();
@@ -1672,6 +1704,7 @@
             isLoggedIn = true;
             saveLoginSession(email, memberName);
             recordLoginVisit(email, memberName);
+            showAppChrome();
             if (!loadStarted) startInitialLoad();
           } else {
             setLoginMsg("沒有權限（" + email + "）", true);
@@ -1839,13 +1872,13 @@
 
     function loadAdminSheet(key) {
       document.getElementById("adminSheetTable").innerHTML = '<div class="text-muted small py-3">讀取中 ...</div>';
-      google.script.run.withSuccessHandler(function(res) {
-        if (!res.success) {
-          document.getElementById("adminSheetTable").innerHTML = '<div class="text-danger small">' + escAdmin(res.message) +'</div>';
+      callAppsScript("adminListSheet", { key: key }).then(function(res) {
+        if (!res || !res.success) {
+          document.getElementById("adminSheetTable").innerHTML = '<div class="text-danger small">' + escAdmin(res && res.message ? res.message : "讀取失敗") +'</div>';
           return;
         }
         adminSheetCache = res;
-        document.getElementById("adminSheetHint").innerText = res.truncated ? "只顯示前  400 列有內容的資料" : "";
+        document.getElementById("adminSheetHint").innerText = res.truncated ? "先顯示頭 50 項" : "";
 
         var isReadonly = res.readonly === true;
         var actionHeader = isReadonly ? "" : "<th></th>";
@@ -1868,7 +1901,9 @@
         document.getElementById("adminSheetTable").innerHTML = 
           '<div class="admin-desktop-only"><table class="table table-sm align-middle"><thead class="table-light">' + head +'</thead><tbody>' + body +'</tbody></table></div>' +
           '<div class="admin-mobile-only">' + cards +'</div>';
-      }).adminListSheet(key);
+      }).catch(function(err) {
+        document.getElementById("adminSheetTable").innerHTML = '<div class="text-danger small">讀取失敗：' + escAdmin(err) + '</div>';
+      });
     }
 
     function openSheetRow(rowIndex) {
@@ -1888,22 +1923,22 @@
 
     function saveSheetRow() {
       var values = Array.from(document.querySelectorAll(".sheet-field")).map(function(input) { return input.value; });
-      google.script.run.withSuccessHandler(function(res) {
-        alert(res.message);
-        if (res.success) {
+      callAppsScript("adminSaveSheetRow", { key: adminSheetKey, rowIndex: editingSheetRow, values: values }).then(function(res) {
+        alert(res && res.message ? res.message : "完成");
+        if (res && res.success) {
           sheetRowModal.hide();
           loadAdminSheet(adminSheetKey);
           if (adminSheetKey === "member" || adminSheetKey === "manager" || adminSheetKey === "category") loadDropdownOptions();
         }
-      }).adminSaveSheetRow(adminSheetKey, editingSheetRow, values);
+      }).catch(function(err) { alert("儲存失敗：" + err); });
     }
 
     function deleteSheetRow(rowIndex) {
       if (!confirm("確定刪除第" + rowIndex + " 列 ？")) return;
-      google.script.run.withSuccessHandler(function(res) {
-        alert(res.message);
-        if (res.success) loadAdminSheet(adminSheetKey);
-      }).adminDeleteSheetRow(adminSheetKey, rowIndex);
+      callAppsScript("adminDeleteSheetRow", { key: adminSheetKey, rowIndex: rowIndex }).then(function(res) {
+        alert(res && res.message ? res.message : "完成");
+        if (res && res.success) loadAdminSheet(adminSheetKey);
+      }).catch(function(err) { alert("刪除失敗：" + err); });
     }
 
     function openAdminPanel() {
@@ -2944,7 +2979,6 @@
           var parsed = parseSlotDate(s.date || "");
           if (!parsed.date) return;
           var title = a.name || "未命名";
-          if (parsed.start && parsed.end) title = parsed.start + "-" + parsed.end + " " + title;
           events.push({
             title: title,
             start: parsed.date,
@@ -3048,10 +3082,14 @@
       try { localStorage.removeItem(LOGIN_KEY); } catch (e) {}
       isLoggedIn = false;
       loadStarted = false;
+      pendingLoads = 0;
       googleUser = null;
       var display = document.getElementById("currentUserDisplay");
       if (display) display.innerText = "";
       closeProfilePanel();
+      closeActivityPanel();
+      closeAdminPanel();
+      closeSideMenu();
       showLoginOverlay();
     }
 
@@ -3243,7 +3281,7 @@
       var leaderOpts = (membersList || []).map(function(m) {
         return '<option value="' + m + '"' + (leaders.indexOf(m) !== -1 ? ' selected' : '') + '>' + m + '</option>';
       }).join("");
-      var adminList = window.adminNamesList || [];
+      var adminList = (window.adminNamesList && window.adminNamesList.length) ? window.adminNamesList : (membersList || []);
       var coordOpts = adminList.map(function(m) {
         return '<option value="' + m + '"' + (coords.indexOf(m) !== -1 ? ' selected' : '') + '>' + m + '</option>';
       }).join("");
