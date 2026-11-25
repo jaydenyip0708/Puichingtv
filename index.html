@@ -304,122 +304,20 @@
 
     /* ===== 手機友善強化 ===== */
     @media (max-width: 767.98px) {
-      html, body { overflow-x: hidden; font-size: 13px !important; }
-      .app-header { padding: 8px 10px; }
-      .header-title-text { font-size: 13px !important; }
-      .brand-logo, .brand-fallback { height: 32px !important; width: 32px !important; min-width: 32px !important; }
-      .container-fluid { padding-left: 14px !important; padding-right: 14px !important; }
-      .card { margin-bottom: 14px; }
-      .card, .mobile-project-card, .filter-box, p, span, div, li, td, th {
-        font-size: 13px;
-      }
-      .small, .text-muted, .form-label, .badge, .status-badge {
-        font-size: 14px !important;
-      }
-      .btn, button, .form-control, .form-select, .choices__inner {
-        min-height: 42px !important;
-        font-size: 13.5px !important;
-      }
-      .fc .fc-toolbar { flex-wrap: wrap; gap: 8px; }
-      .fc .fc-toolbar-title { font-size: 1.05rem !important; width: 100%; text-align: center; order: -1; font-weight: 700; }
-      .fc .fc-button { min-height: 40px !important; font-size: 0.95rem !important; padding: 8px 12px !important; }
-      .fc .fc-col-header-cell-cushion,
-      .fc .fc-daygrid-day-number { font-size: 0.95rem !important; }
-      .fc-event { font-size: 0.9rem !important; line-height: 1.35; padding: 5px 7px !important; }
-      .bottom-nav { height: auto; }
-      .bottom-nav-inner { height: 68px; max-width: 100%; }
-      .bottom-nav-btn { font-size: 0.85rem !important; gap: 5px; }
-      .bottom-nav-btn .nav-icon { width: 28px; height: 28px; }
-      .bottom-nav-btn .nav-icon svg { width: 24px; height: 24px; }
-      body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; }
+      html, body { overflow-x: hidden; }
       .modal-dialog { margin: 0; }
       .modal-content { border-radius: 16px 16px 0 0 !important; }
-      .modal-title { font-size: 1.2rem !important; }
-      .mobile-project-card { padding: 12px; font-size: 13px !important; }
-      .mobile-project-card .fw-bold { font-size: 1rem !important; }
-      .filter-box { padding: 14px; }
-      .filter-box .col-md-3, .filter-box .col-6 { width: 100%; }
-      #currentUserDisplay { font-size: 14px !important; padding: 6px 10px !important; }
     }
 
     /* ===== 手機／平板介面優化 ===== */
     @media (max-width: 991.98px) {
-      body {
-        font-size: 15px;
-      }
-      .container-fluid {
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-      }
-      .card {
-        border-radius: 12px;
-      }
-      #calendar {
-        font-size: 1rem;
-      }
-      .fc .fc-daygrid-event {
-        font-size: 0.9rem !important;
-        padding: 4px 6px !important;
-      }
-      .fc .fc-toolbar-chunk {
-        display: flex;
-        gap: 2px;
-      }
-      .filter-box {
-        padding: 10px;
-      }
-      .filter-box .row > [class*="col-"] {
-        margin-bottom: 8px;
-      }
-      .btn, .form-control, .form-select {
-        min-height: 42px;
-      }
       .side-menu-item {
-        padding: 14px 14px;
-        font-size: 1rem;
+        padding: 12px 14px;
+        font-size: 15px;
       }
     }
     @media (max-width: 576px) {
-      body { font-size: 16px; }
-      .header-title-text {
-        max-width: 46vw;
-        font-size: 14px !important;
-      }
-      .fc .fc-toolbar-title {
-        font-size: 1rem !important;
-      }
-      .fc .fc-button {
-        padding: 6px 10px !important;
-        font-size: 0.82rem !important;
-      }
-      .fc .fc-col-header-cell-cushion,
-      .fc .fc-daygrid-day-number {
-        font-size: 0.85rem !important;
-      }
-      .fc-event {
-        font-size: 0.78rem !important;
-        padding: 4px 6px !important;
-      }
-      #calendar {
-        min-height: 400px;
-      }
-      .mobile-project-card {
-        padding: 16px;
-        font-size: 1rem;
-      }
-      .mobile-project-card .fw-bold,
-      .mobile-project-card h6 {
-        font-size: 1.05rem;
-      }
-      .card.p-3, .card.p-md-4 {
-        padding: 14px !important;
-      }
-      .form-label { font-size: 0.92rem; }
-      .btn { font-size: 0.95rem; }
-      .bottom-nav-btn { font-size: 0.72rem; }
-      .bottom-nav-btn .nav-icon { width: 24px; height: 24px; }
-      .filter-box, .small, .text-muted { font-size: 0.88rem; }
-      #currentUserDisplay { font-size: 12px !important; }
+      .header-title-text { max-width: 38vw; }
     }
     @media (min-width: 768px) and (max-width: 991.98px) {
       .bottom-nav-inner {
@@ -2179,6 +2077,18 @@
           right: 'dayGridMonth'
         },
         buttonText: { today: '今天', month: '月' },
+        height: 'auto',
+        contentHeight: 'auto',
+        fixedWeekCount: false,
+        dayMaxEventRows: 3,
+        eventDisplay: 'block',
+        eventContent: function(arg) {
+          var chip = document.createElement('div');
+          chip.className = 'cal-chip';
+          chip.textContent = arg.event.title || '';
+          chip.style.background = arg.event.backgroundColor || '#334155';
+          return { domNodes: [chip] };
+        },
         editable: true,
         eventStartEditable: true,
         eventDurationEditable: false,
@@ -3243,38 +3153,78 @@
   <style>
     @media (max-width: 991.98px) {
       html { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }
-      .app-header { padding: 4px 8px !important; }
-      #hamburgerBtn svg { width: 18px !important; height: 18px !important; }
-      .header-title-text { font-size: 12px !important; }
-      .brand-logo, .brand-fallback { height: 22px !important; width: 22px !important; min-width: 22px !important; flex: 0 0 22px !important; }
-      #currentUserDisplay { font-size: 11px !important; padding: 2px 6px !important; }
-      #calendar, #calendar .fc { font-size: 11px !important; }
-      .fc .fc-toolbar { margin-bottom: 2px !important; gap: 2px !important; }
-      .fc .fc-toolbar-title { font-size: 14px !important; font-weight: 700 !important; }
-      .fc .fc-button, .fc .fc-button-primary { min-height: 24px !important; font-size: 11px !important; padding: 1px 6px !important; }
-      .fc .fc-col-header-cell-cushion,
-      .fc .fc-daygrid-day-number,
-      .fc .fc-daygrid-day-top { font-size: 11px !important; padding: 1px 2px !important; }
-      .fc .fc-daygrid-day-frame { min-height: 0 !important; }
-      .fc .fc-daygrid-day-top { padding: 0 !important; min-height: 0 !important; }
-      .fc .fc-daygrid-day-events { margin: 0 !important; padding: 0 !important; }
-      .fc .fc-daygrid-event-harness { margin: 0 0 1px 0 !important; }
-      .fc-event, .fc .fc-daygrid-event, .fc-event-title, .fc-event-time, .fc .fc-event-main {
-        font-size: 9px !important;
-        font-weight: 600 !important;
-        padding: 0 2px !important;
-        line-height: 1.15 !important;
-        border-radius: 3px !important;
-        margin: 0 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+      body { font-size: 14px; }
+      .app-header { padding: 6px 10px !important; margin-bottom: 8px !important; }
+      .app-header .container-fluid { gap: 8px; }
+      #hamburgerBtn { padding: 2px !important; min-height: 0 !important; }
+      #hamburgerBtn svg { width: 20px !important; height: 20px !important; }
+      .brand-logo, .brand-fallback {
+        height: 24px !important; width: 24px !important; min-width: 24px !important; flex: 0 0 24px !important;
       }
-      .bottom-nav-inner { height: 44px !important; }
-      .bottom-nav-btn { font-size: 10px !important; gap: 1px !important; padding: 2px 0 !important; }
-      .bottom-nav-btn .nav-icon { width: 16px !important; height: 16px !important; }
-      .bottom-nav-btn .nav-icon svg { width: 16px !important; height: 16px !important; }
-      body { padding-bottom: calc(44px + env(safe-area-inset-bottom, 0px)) !important; }
+      .header-title-text {
+        font-size: 13px !important;
+        max-width: 34vw;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .user-chip { gap: 4px !important; padding: 2px 8px 2px 2px !important; }
+      .user-avatar { width: 22px !important; height: 22px !important; }
+      #currentUserDisplay, .user-name {
+        font-size: 12px !important;
+        padding: 0 !important;
+        max-width: 64px !important;
+      }
+      .container-fluid.pb-5, #adminPanel, #activityPanel {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+      #mainRow { --bs-gutter-y: 8px; --bs-gutter-x: 8px; }
+      #leftPanel > .btn {
+        min-height: 36px !important;
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        border-radius: 10px;
+        margin-bottom: 8px !important;
+      }
+      #leftPanel > .btn span:last-child { font-size: 11px !important; font-weight: 500; color: #64748b; }
+      #rightPanel > .card { padding: 8px !important; border-radius: 12px; }
+      .form-label { font-size: 12px !important; margin-bottom: 4px !important; }
+      .form-control, .form-select, .choices__inner {
+        min-height: 38px;
+        font-size: 14px !important;
+      }
+      .filter-box { padding: 8px !important; }
+      .filter-box .col-6, .filter-box .col-8, .filter-box .col-4, .filter-box .col-12 { margin-bottom: 6px; }
+      .mobile-project-card { padding: 12px !important; margin-bottom: 8px; font-size: 14px !important; }
+      .mobile-project-card .fw-bold { font-size: 15px !important; }
+      .status-badge, .version-tag { font-size: 11px !important; }
+      .bottom-nav-inner { height: 54px !important; }
+      .bottom-nav-btn { font-size: 11px !important; gap: 2px !important; padding: 4px 0 2px !important; min-height: 0 !important; }
+      .bottom-nav-btn .nav-icon { width: 20px !important; height: 20px !important; }
+      .bottom-nav-btn .nav-icon svg { width: 20px !important; height: 20px !important; }
+      body { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)) !important; }
+      .app-footer { padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px)) !important; }
+
+      #calendar, #calendar .fc { font-size: 12px !important; }
+      #calendar .fc-toolbar { margin-bottom: 6px !important; gap: 4px !important; flex-wrap: nowrap !important; }
+      #calendar .fc-toolbar-title { font-size: 15px !important; font-weight: 700 !important; }
+      #calendar .fc-button, #calendar .fc-button-primary {
+        min-height: 0 !important; height: auto !important;
+        font-size: 12px !important; padding: 3px 8px !important; line-height: 1.2 !important;
+      }
+      #calendar .fc-col-header-cell-cushion,
+      #calendar .fc-daygrid-day-number { font-size: 11px !important; padding: 2px 3px !important; }
+      #calendar .fc-daygrid-day-frame,
+      #calendar .fc-daygrid-day-top,
+      #calendar .fc-daygrid-day-events,
+      #calendar .fc-daygrid-event-harness { min-height: 0 !important; margin: 0 !important; padding: 0 !important; }
+      #calendar .fc-daygrid-event { margin: 1px 1px 0 !important; padding: 0 !important; background: transparent !important; border: none !important; }
+      #calendar .cal-chip {
+        display: block; font-size: 9px !important; line-height: 1.25 !important; font-weight: 600;
+        color: #fff; border-radius: 3px; padding: 1px 3px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
     }
   </style>
 </body>
