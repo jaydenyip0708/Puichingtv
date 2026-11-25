@@ -2998,6 +2998,23 @@
       activityModal.show();
     }
 
+
+    function parseSlotDate(raw) {
+      var text = String(raw || "").trim();
+      var out = { date: "", start: "", end: "" };
+      if (!text) return out;
+      var dateMatch = text.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+      if (dateMatch) {
+        out.date = dateMatch[1] + "-" + String(dateMatch[2]).padStart(2, "0") + "-" + String(dateMatch[3]).padStart(2, "0");
+      }
+      var timeMatch = text.match(/(\d{1,2}:\d{2})\s*[-–~至]\s*(\d{1,2}:\d{2})/);
+      if (timeMatch) {
+        out.start = timeMatch[1].padStart(5, "0");
+        out.end = timeMatch[2].padStart(5, "0");
+      }
+      return out;
+    }
+
     function addSlot(data) {
       data = data || {};
       var id = ++slotCounter;
@@ -3020,7 +3037,6 @@
         + '<input type="time" class="slot-time-start">'
         + '<input type="time" class="slot-time-end">'
         + '</div>'
-        + '<input type="text" class="slot-date" placeholder="日期／時間，例如 2026-12-03 14:00-17:00" value="' + (data.date || "") + '">'
         + '<div class="slot-field"><div class="slot-label">負責成員 <span class="count-leaders">0人</span></div>'
         + '<select class="slot-leader-select" multiple>' + leaderOpts + '</select></div>'
         + '<div class="slot-field"><div class="slot-label">成員統籌 <span class="count-coords">0人</span></div>'
@@ -3039,6 +3055,13 @@
       document.getElementById("slotsContainer").insertAdjacentHTML("beforeend", html);
       var block = document.querySelector('.slot-block[data-slot="' + id + '"]');
       if (block) {
+        var parsed = parseSlotDate(data.date || "");
+        var dateEl = block.querySelector(".slot-date-picker");
+        var startEl = block.querySelector(".slot-time-start");
+        var endEl = block.querySelector(".slot-time-end");
+        if (dateEl) dateEl.value = parsed.date;
+        if (startEl) startEl.value = parsed.start;
+        if (endEl) endEl.value = parsed.end;
         block.querySelectorAll(".slot-leader-select, .slot-coord-select").forEach(function(sel) {
           new Choices(sel, {
             removeItemButton: true,
@@ -3126,13 +3149,9 @@
             var picker = (block.querySelector(".slot-date-picker") || {}).value || "";
             var tStart = (block.querySelector(".slot-time-start") || {}).value || "";
             var tEnd = (block.querySelector(".slot-time-end") || {}).value || "";
-            var period = (tStart || tEnd) ? ((tStart||"") + "-" + (tEnd||"")) : "";
-            var manual = (block.querySelector(".slot-date") || {}).value || "";
-            var parts = [];
-            if (picker) parts.push(picker);
-            if (period) parts.push(period);
-            if (manual && manual !== picker) parts.push(manual);
-            return parts.join(" ") || manual;
+            if (!picker && !tStart && !tEnd) return "";
+            var period = (tStart || tEnd) ? ((tStart || "") + "-" + (tEnd || "")) : "";
+            return [picker, period].filter(Boolean).join(" ");
           })(),
           leaders: leaders,
           coordinators: coordinators,
