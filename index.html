@@ -2069,14 +2069,22 @@
       var full = el.getAttribute('data-full') || '';
       function apply() {
         if (!el.isConnected || el.clientWidth <= 0) return;
-        el.textContent = full;
-        if (el.scrollWidth <= el.clientWidth) return;
+        var style = window.getComputedStyle(el);
+        var pad = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+        var available = el.clientWidth - pad - 4;
+        if (available <= 0) { el.textContent = ''; return; }
+        var canvas = fitChipText._c || (fitChipText._c = document.createElement('canvas'));
+        var ctx = canvas.getContext('2d');
+        ctx.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
+        if (ctx.measureText(full).width <= available) {
+          el.textContent = full;
+          return;
+        }
         var lo = 0;
         var hi = full.length;
         while (lo < hi) {
           var mid = Math.ceil((lo + hi) / 2);
-          el.textContent = full.slice(0, mid);
-          if (el.scrollWidth <= el.clientWidth) lo = mid;
+          if (ctx.measureText(full.slice(0, mid)).width <= available) lo = mid;
           else hi = mid - 1;
         }
         el.textContent = full.slice(0, lo);
@@ -3254,9 +3262,9 @@
       #calendar .fc-daygrid-event-harness { margin: 0 !important; padding: 0 !important; }
       #calendar .fc-daygrid-event { margin: 3px 2px 0 !important; padding: 0 !important; background: transparent !important; border: none !important; }
       #calendar .cal-chip {
-        display: block; font-size: 11px !important; line-height: 1.2 !important; font-weight: 700 !important;
+        display: block; box-sizing: border-box; font-size: 11px !important; line-height: 1.2 !important; font-weight: 700 !important;
         color: #fff; border-radius: 5px; padding: 5px 4px;
-        white-space: nowrap; overflow: hidden; text-overflow: clip;
+        white-space: nowrap; overflow: hidden;
       }
     }
   </style>
