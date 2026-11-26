@@ -922,22 +922,22 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         <span>月曆</span>
       </button>
-      <button type="button" class="side-menu-item" onclick="openProfilePanel(); closeSideMenu();">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>個人</span>
-      </button>
       <button type="button" class="side-menu-item" onclick="switchToView('list'); closeSideMenu();">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
         <span>進度</span>
+      </button>
+      <button type="button" class="side-menu-item" id="sideActivityBtn" onclick="openActivityPanel(); closeSideMenu();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>拍攝活動</span>
+      </button>
+      <button type="button" class="side-menu-item" onclick="openProfilePanel(); closeSideMenu();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>個人</span>
       </button>
       <div style="height:1px; background:#f1f5f9; margin:8px 4px;"></div>
       <button type="button" class="side-menu-item" id="sideAdminBtn" style="display:none;" onclick="openAdminPanel(); closeSideMenu();">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span>後台</span>
-      </button>
-      <button type="button" class="side-menu-item" id="sideActivityBtn" style="display:none;" onclick="openActivityPanel(); closeSideMenu();">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>拍攝活動</span>
       </button>
       <div style="height:1px; background:#f1f5f9; margin:8px 4px;"></div>
       <button type="button" class="side-menu-item" onclick="logoutUser(); closeSideMenu();" style="color:#b91c1c;">
@@ -1612,11 +1612,15 @@
 
     function applyCabinetUI() {
       currentUserIsAdmin = !!window.currentUserIsCabinet;
-      ["adminEntryBtn", "bottomAdminBtn", "bottomActivityBtn", "sideAdminBtn", "sideActivityBtn"].forEach(function(id) {
+      ["adminEntryBtn", "bottomAdminBtn", "sideAdminBtn"].forEach(function(id) {
         var el = document.getElementById(id);
         if (!el) return;
         el.style.display = currentUserIsAdmin ? (id.indexOf("bottom") === 0 ? "flex" : "") : "none";
       });
+      var actBtn = document.getElementById("bottomActivityBtn");
+      if (actBtn) actBtn.style.display = "flex";
+      var sideAct = document.getElementById("sideActivityBtn");
+      if (sideAct) sideAct.style.display = "";
       var leftAct = document.getElementById("leftActivityBtn");
       if (leftAct) { leftAct.classList.toggle("d-none", !currentUserIsAdmin); leftAct.style.display = currentUserIsAdmin ? "block" : "none"; }
       var addBtn = document.querySelector(".act-add");
@@ -3172,9 +3176,8 @@
       if (actEl) {
         var today = new Date().toISOString().slice(0, 10);
         actEl.innerHTML = acts.length ? acts.map(function(a) {
-          var dates = (a.slots || []).map(function(s) { return s.date; }).filter(Boolean);
-          var first = activityFirstDate(a);
-          var past = first && first < today;
+          var dates = (a.slots || []).map(function(s) { return parseSlotDate(s.date || "").date; }).filter(Boolean);
+          var past = dates.length && dates.every(function(d) { return d < today; });
           return '<div class="me-item' + (past ? ' past' : '') + '"><div class="me-item-name">' + (a.name || "未命名") + '</div><div class="me-item-sub">' + (a.item || "") + (dates.length ? " · " + dates.join("、") : "") + '</div></div>';
         }).join("") : '<div class="me-empty">暫時沒有你參與的拍攝</div>';
       }
@@ -3187,12 +3190,15 @@
             var people = [].concat(s.leaders || [], s.coordinators || [], s.leader ? [s.leader] : [], s.coordinator ? [s.coordinator] : []);
             if (people.indexOf(name) === -1) return;
             if (s.leaveStart || s.leaveEnd) {
-              leaves.push((a.name || "未命名") + " · " + (s.date || "") + " · 第" + (s.leaveStart || "-") + "–" + (s.leaveEnd || "-") + "節");
+              leaves.push({ date: s.date || "", text: (a.name || "未命名") + " · " + (s.date || "") + " · 第" + (s.leaveStart || "-") + "–" + (s.leaveEnd || "-") + "節" });
             }
           });
         });
-        leaveEl.innerHTML = leaves.length ? leaves.map(function(t) {
-          return '<div class="me-item"><div class="me-item-name">' + t + '</div></div>';
+        var todayLeave = new Date().toISOString().slice(0, 10);
+        leaveEl.innerHTML = leaves.length ? leaves.map(function(item) {
+          var d = parseSlotDate(item.date || "").date;
+          var past = d && d < todayLeave;
+          return '<div class="me-item' + (past ? ' past' : '') + '"><div class="me-item-name">' + item.text + '</div></div>';
         }).join("") : '<div class="me-empty">暫時沒有公假</div>';
       }
 
@@ -3203,13 +3209,13 @@
       if (projEl) {
         projEl.innerHTML = projects.length ? projects.map(function(p) {
           var role = p.leader === name ? "負責" : "剪接";
-          return '<div class="me-item"><div class="me-item-name">' + (p.title || "未命名") + '</div><div class="me-item-sub">' + role + " · " + (p.normalStatus || "") + '</div></div>';
+          var published = p.normalStatus === "已上架" && (p.needTdm !== "是" || p.tdmStatus === "已上架" || p.tdmStatus === "不需要");
+          return '<div class="me-item' + (published ? ' past' : '') + '"><div class="me-item-name">' + (p.title || "未命名") + '</div><div class="me-item-sub">' + role + " · " + (p.normalStatus || "") + '</div></div>';
         }).join("") : '<div class="me-empty">暫時沒有你的專案</div>';
       }
     }
 
     function openActivityPanel() {
-      if (!currentUserIsAdmin) { alert("只有內閣可以進入拍攝活動"); return; }
       closeProfilePanel();
       var admin = document.getElementById("adminPanel");
       if (admin) admin.style.display = "none";
@@ -3298,15 +3304,18 @@
             + (leaveText ? '<div class="act-row"><span class="act-k">公假</span><span class="act-v">' + leaveText + '</span></div>' : '')
             + '</div>';
         }).join("") || '<div class="act-slot act-slot-empty">未有時段</div>';
-        return '<article class="act-card">'
+        var today = new Date().toISOString().slice(0, 10);
+        var allDates = (a.slots || []).map(function(s) { return parseSlotDate(s.date || "").date; }).filter(Boolean);
+        var fullyPast = allDates.length && allDates.every(function(d) { return d < today; });
+        var actions = currentUserIsAdmin
+          ? '<button type="button" onclick="openActivityForm(' + a.rowIndex + ')">編輯</button><button type="button" class="danger" onclick="deleteActivityItem(' + a.rowIndex + ')">刪除</button>'
+          : '';
+        return '<article class="act-card' + (fullyPast ? ' past' : '') + '">'
           + '<div class="act-head">'
           + '<div class="act-titles"><div class="act-item">' + (a.item || "未填項目") + '</div>'
           + '<div class="act-name">' + (a.name || "未命名") + '</div></div>'
-          + '<div class="act-actions">'
-          + '<button type="button" onclick="openActivityForm(' + a.rowIndex + ')">編輯</button>'
-          + '<button type="button" class="danger" onclick="deleteActivityItem(' + a.rowIndex + ')">刪除</button>'
-          + '</div></div>'
-          + '<div class="act-slots">' + slotsHtml + '</div>'
+          + '<div class="act-actions">' + actions + '</div></div>'
+                    + '<div class="act-slots">' + slotsHtml + '</div>'
           + '</article>';
       }).join("");
     }
@@ -3621,7 +3630,7 @@
         <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
         <span>進度</span>
       </button>
-      <button type="button" class="bottom-nav-btn" data-view="activity" id="bottomActivityBtn" style="display:none !important;" style="display:none;" onclick="switchMobileView('activity')">
+      <button type="button" class="bottom-nav-btn" data-view="activity" id="bottomActivityBtn" onclick="switchMobileView('activity')">
         <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
         <span>拍攝活動</span>
       </button>
@@ -3674,6 +3683,8 @@
     .act-empty { text-align: center; color: #64748b; background: #fff; border: 1px dashed #e2e8f0; border-radius: 16px; padding: 36px 16px; line-height: 1.6; }
     .act-empty span { color: #94a3b8; font-size: 13px; }
     .act-card { background: #fff; border: 1px solid #e8edf3; border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+    .act-card.past, .act-card.past .act-slot { background: #e5e7eb; border-color: #d1d5db; color: #6b7280; }
+    .act-card.past .act-name, .act-card.past .act-item, .act-card.past .act-date, .act-card.past .act-v, .act-card.past .act-k { color: #6b7280; }
     .act-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
     .act-item { font-size: 12px; color: #94a3b8; }
     .act-name { font-size: 18px; font-weight: 700; color: #0f172a; line-height: 1.3; margin-top: 1px; }
