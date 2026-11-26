@@ -565,12 +565,18 @@
     }
     .admin-mobile-only .admin-card {
       background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
+      border: 1px solid #e8edf3;
+      border-radius: 14px;
+      padding: 12px;
       margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
+    .admin-card-title { font-size: 15px; font-weight: 700; color: #0f172a; line-height: 1.35; margin-bottom: 8px; }
+    .admin-kv { display: flex; gap: 8px; font-size: 13px; line-height: 1.4; margin-top: 4px; }
+    .admin-kv span { flex: 0 0 72px; color: #94a3b8; }
+    .admin-kv b { flex: 1; min-width: 0; font-weight: 600; color: #334155; overflow-wrap: anywhere; }
+    .admin-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .admin-card-actions button { flex: 1; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; padding: 6px 0; font-size: 13px; }
+    .admin-card-actions button.danger { color: #b91c1c; border-color: #fecaca; }
     #adminSheetTable {
       font-size: 0.82rem;
     }
@@ -1935,11 +1941,18 @@
         }).join("") || '<tr><td colspan="' + (res.headers.length + (isReadonly ? 0 : 1)) +'" class="text-muted">沒有資料 </td></tr>';
 
         var cards = res.rows.map(function(row) {
-          var lines = res.headers.map(function(header, index) {
-            return '<div class="meta"><b>' + escAdmin(header || ("欄" + (index + 1))) + '</b>' + escAdmin(row.values[index] || "-") + '</div>';
+          var fields = res.headers.map(function(header, index) {
+            return { label: header || ("欄" + (index + 1)), value: row.values[index] || "" };
+          }).filter(function(f) { return String(f.value).trim(); });
+          var title = fields.length ? fields[0] : { label: "第" + row.rowIndex + "列", value: "" };
+          var rest = fields.slice(1, 5);
+          var lines = rest.map(function(f) {
+            var val = String(f.value);
+            if (val.length > 80) val = val.slice(0, 80) + "…";
+            return '<div class="admin-kv"><span>' + escAdmin(f.label) + '</span><b>' + escAdmin(val) + '</b></div>';
           }).join("");
-          var actions = isReadonly ? "" : '<div class="d-flex gap-2 mt-2"><button class="btn btn-sm btn-outline-dark flex-fill" onclick="openSheetRow(' + row.rowIndex +')">修改 </button><button class="btn btn-sm btn-outline-danger flex-fill" onclick="deleteSheetRow(' + row.rowIndex +')">刪除 </button></div>';
-          return '<div class="admin-card">' + lines + actions +'</div>';
+          var actions = isReadonly ? "" : '<div class="admin-card-actions"><button type="button" onclick="openSheetRow(' + row.rowIndex +')">修改</button><button type="button" class="danger" onclick="deleteSheetRow(' + row.rowIndex +')">刪除</button></div>';
+          return '<div class="admin-card"><div class="admin-card-title">' + escAdmin(title.value || title.label) + '</div>' + lines + actions + '</div>';
         }).join("") || '<div class="text-muted small">沒有資料 </div>';
 
         document.getElementById("adminSheetTable").innerHTML = 
@@ -3171,7 +3184,7 @@
           var people = [].concat(s.leaders || [], s.coordinators || [], s.leader ? [s.leader] : [], s.coordinator ? [s.coordinator] : []);
           return people.indexOf(name) !== -1;
         });
-      });
+      }).sort(function(a, b) { return activityFirstDate(b).localeCompare(activityFirstDate(a)); });
       var actEl = document.getElementById("profileActivities");
       if (actEl) {
         var today = new Date().toISOString().slice(0, 10);
@@ -3194,6 +3207,7 @@
             }
           });
         });
+        leaves.sort(function(a, b) { return parseSlotDate(b.date || "").date.localeCompare(parseSlotDate(a.date || "").date); });
         var todayLeave = new Date().toISOString().slice(0, 10);
         leaveEl.innerHTML = leaves.length ? leaves.map(function(item) {
           var d = parseSlotDate(item.date || "").date;
@@ -3204,7 +3218,7 @@
 
       var projects = (globalProjectsData || []).filter(function(p) {
         return p.leader === name || p.editor === name;
-      });
+      }).sort(function(a, b) { return String(b.normalTargetDate || "").localeCompare(String(a.normalTargetDate || "")); });
       var projEl = document.getElementById("profileProjects");
       if (projEl) {
         projEl.innerHTML = projects.length ? projects.map(function(p) {
