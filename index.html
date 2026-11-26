@@ -1330,7 +1330,7 @@
     let updateModal;
     let adminEditModal;
     let sheetRowModal;
-    let currentUserIsAdmin = true;
+    let currentUserIsAdmin = false;
     let adminSheetKey = "projects";
     let adminSheetCache = null;
     let editingSheetRow = 0;
@@ -1601,9 +1601,32 @@
       }
     }
 
+    function refreshCabinet(email, name) {
+      fetch(APPS_SCRIPT_URL + "?action=checkCabinet&email=" + encodeURIComponent(email || "") + "&name=" + encodeURIComponent(name || ""))
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          window.currentUserIsCabinet = !!(res && res.isCabinet);
+          applyCabinetUI();
+        }).catch(function() {});
+    }
+
+    function applyCabinetUI() {
+      currentUserIsAdmin = !!window.currentUserIsCabinet;
+      ["adminEntryBtn", "bottomAdminBtn", "bottomActivityBtn", "sideAdminBtn", "sideActivityBtn"].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = currentUserIsAdmin ? (id.indexOf("bottom") === 0 ? "flex" : "") : "none";
+      });
+      var leftAct = document.getElementById("leftActivityBtn");
+      if (leftAct) { leftAct.classList.toggle("d-none", !currentUserIsAdmin); leftAct.style.display = currentUserIsAdmin ? "block" : "none"; }
+      var addBtn = document.querySelector(".act-add");
+      if (addBtn) addBtn.style.display = currentUserIsAdmin ? "" : "none";
+    }
+
     function applySavedLogin(session) {
       var display = document.getElementById("currentUserDisplay");
       if (display) display.innerText = session.name || session.email;
+      refreshCabinet(session.email, session.name);
       var ov = document.getElementById("loginOverlay");
       if (ov) ov.style.display = "none";
       isLoggedIn = true;
@@ -1704,6 +1727,7 @@
             isLoggedIn = true;
             saveLoginSession(email, memberName);
             recordLoginVisit(email, memberName);
+            refreshCabinet(email, memberName);
             showAppChrome();
             if (!loadStarted) startInitialLoad();
           } else {
@@ -1753,7 +1777,7 @@
           }
           // 後台權限
           if (data.admin) {
-            currentUserIsAdmin = true;
+            currentUserIsAdmin = !!window.currentUserIsCabinet;
             var btn = document.getElementById("adminEntryBtn");
             if (btn) btn.style.display = currentUserIsAdmin ? "" : "none";
             var bottomBtn = document.getElementById("bottomAdminBtn");
@@ -1820,7 +1844,7 @@
       startLoading('正在檢查後台權限...');
       google.script.run
         .withSuccessHandler(function(res) {
-          currentUserIsAdmin = true;
+          currentUserIsAdmin = !!window.currentUserIsCabinet;
           var btn = document.getElementById("adminEntryBtn");
           if (btn) btn.style.display = currentUserIsAdmin ? "" : "none";
           var bottomBtn = document.getElementById("bottomAdminBtn");
@@ -1870,15 +1894,31 @@
         .split('"').join("quot;");
     }
 
-    function loadAdminSheet(key) {
-      document.getElementById("adminSheetTable").innerHTML = '<div class="text-muted small py-3">讀取中 ...</div>';
-      callAppsScript("adminListSheet", { key: key }).then(function(res) {
+    var adminPage = { key: "", offset: 0, loading: false, hasMore: false };
+    function loadAdminSheet(key, append) {
+      if (!append) {
+        adminPage = { key: key, offset: 0, loading: true, hasMore: false };
+        document.getElementById("adminSheetTable").innerHTML = '<div class="text-muted small py-3">讀取中 ...</div>';
+      } else {
+        if (adminPage.loading || !adminPage.hasMore) return;
+        adminPage.loading = true;
+      }
+      callAppsScript("adminListSheet", { key: key, offset: append ? adminPage.offset : 0 }).then(function(res) {
         if (!res || !res.success) {
           document.getElementById("adminSheetTable").innerHTML = '<div class="text-danger small">' + escAdmin(res && res.message ? res.message : "讀取失敗") +'</div>';
           return;
         }
+        if (append && adminSheetCache && adminSheetCache.rows) {
+          adminSheetCache.rows = adminSheetCache.rows.concat(res.rows || []);
+          adminSheetCache.headers = res.headers;
+          adminSheetCache.readonly = res.readonly;
+          res.rows = adminSheetCache.rows;
+        }
         adminSheetCache = res;
-        document.getElementById("adminSheetHint").innerText = res.truncated ? "先顯示頭 50 項" : "";
+        adminPage.offset = (res.nextOffset || 0);
+        adminPage.hasMore = !!res.hasMore;
+        adminPage.loading = false;
+        document.getElementById("adminSheetHint").innerText = res.hasMore ? "已顯示 " + res.rows.length + " 項，滑到最底載入下 50 項" : "已顯示全部 " + res.rows.length + " 項";
 
         var isReadonly = res.readonly === true;
         var actionHeader = isReadonly ? "" : "<th></th>";
@@ -1901,8 +1941,21 @@
         document.getElementById("adminSheetTable").innerHTML = 
           '<div class="admin-desktop-only"><table class="table table-sm align-middle"><thead class="table-light">' + head +'</thead><tbody>' + body +'</tbody></table></div>' +
           '<div class="admin-mobile-only">' + cards +'</div>';
+        bindAdminScroll();
       }).catch(function(err) {
+        adminPage.loading = false;
         document.getElementById("adminSheetTable").innerHTML = '<div class="text-danger small">讀取失敗：' + escAdmin(err) + '</div>';
+      });
+    }
+
+    function bindAdminScroll() {
+      var panel = document.getElementById("adminPanel");
+      if (!panel || panel._scrollBound) return;
+      panel._scrollBound = true;
+      panel.addEventListener("scroll", function() {
+        if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 80) {
+          loadAdminSheet(adminPage.key || adminSheetKey, true);
+        }
       });
     }
 
@@ -1942,16 +1995,21 @@
     }
 
     function openAdminPanel() {
-      if (!currentUserIsAdmin) return;
+      if (!currentUserIsAdmin) { alert("只有內閣可以進入後台"); return; }
       closeProfilePanel();
       closeActivityPanel();
       var main = document.querySelector(".container-fluid.pb-5");
       if (main && main.id !== "adminPanel") main.style.display = "none";
       var panel = document.getElementById("adminPanel");
       panel.style.display = "block";
-      panel.style.position = "";
-      panel.style.inset = "";
-      panel.style.zIndex = "";
+      panel.style.position = "fixed";
+      panel.style.top = "60px";
+      panel.style.left = "0";
+      panel.style.right = "0";
+      panel.style.bottom = "54px";
+      panel.style.overflowY = "auto";
+      panel.style.background = "#f8fafc";
+      panel.style.zIndex = "1025";
       panel.style.animation = "none";
       panel.offsetHeight;
       panel.style.animation = "adminFadeIn 0.25s ease-out";
@@ -3112,9 +3170,12 @@
       });
       var actEl = document.getElementById("profileActivities");
       if (actEl) {
+        var today = new Date().toISOString().slice(0, 10);
         actEl.innerHTML = acts.length ? acts.map(function(a) {
-          var dates = (a.slots || []).map(function(s) { return s.date; }).filter(Boolean).join("、");
-          return '<div class="me-item"><div class="me-item-name">' + (a.name || "未命名") + '</div><div class="me-item-sub">' + (a.item || "") + (dates ? " · " + dates : "") + '</div></div>';
+          var dates = (a.slots || []).map(function(s) { return s.date; }).filter(Boolean);
+          var first = activityFirstDate(a);
+          var past = first && first < today;
+          return '<div class="me-item' + (past ? ' past' : '') + '"><div class="me-item-name">' + (a.name || "未命名") + '</div><div class="me-item-sub">' + (a.item || "") + (dates.length ? " · " + dates.join("、") : "") + '</div></div>';
         }).join("") : '<div class="me-empty">暫時沒有你參與的拍攝</div>';
       }
 
@@ -3148,6 +3209,7 @@
     }
 
     function openActivityPanel() {
+      if (!currentUserIsAdmin) { alert("只有內閣可以進入拍攝活動"); return; }
       closeProfilePanel();
       var admin = document.getElementById("adminPanel");
       if (admin) admin.style.display = "none";
@@ -3209,6 +3271,11 @@
       });
     }
 
+    function activityFirstDate(a) {
+      var dates = (a.slots || []).map(function(s) { return parseSlotDate(s.date || "").date; }).filter(Boolean).sort();
+      return dates[0] || "";
+    }
+
     function renderActivityList() {
       var el = document.getElementById("activityList");
       if (!el) return;
@@ -3216,7 +3283,10 @@
         el.innerHTML = '<div class="act-empty">尚未有拍攝活動<br><span>按右上角新增</span></div>';
         return;
       }
-      el.innerHTML = activityData.map(function(a) {
+      var sorted = activityData.slice().sort(function(a, b) {
+        return activityFirstDate(b).localeCompare(activityFirstDate(a));
+      });
+      el.innerHTML = sorted.map(function(a) {
         var slotsHtml = (a.slots || []).map(function(s) {
           var leaders = s.leaders || (s.leader ? [s.leader] : []);
           var coords = s.coordinators || (s.coordinator ? [s.coordinator] : []);
@@ -3242,6 +3312,7 @@
     }
 
     function openActivityForm(rowIndex) {
+      if (!currentUserIsAdmin) { alert("只有內閣可以新增或修改拍攝活動"); return; }
       if (!activityModal) activityModal = new bootstrap.Modal(document.getElementById("activityModal"));
       document.getElementById("actRowIndex").value = rowIndex || "";
       document.getElementById("activityModalTitle").innerText = rowIndex ? "編輯拍攝活動" : "新增拍攝活動";
@@ -3588,6 +3659,8 @@
     .me-section { margin-bottom: 14px; }
     .me-title { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 8px; }
     .me-item { background: #fff; border: 1px solid #e8edf3; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+    .me-item.past { background: #e5e7eb; border-color: #d1d5db; color: #6b7280; }
+    .me-item.past .me-item-name, .me-item.past .me-item-sub { color: #6b7280; }
     .me-item-name { font-weight: 700; color: #0f172a; }
     .me-item-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
     .me-empty { color: #94a3b8; font-size: 13px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 12px; padding: 16px; text-align: center; }
