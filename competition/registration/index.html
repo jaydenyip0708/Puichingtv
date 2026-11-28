@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>6/27學年 第七屆紅藍舞台報名表</title>
+  <title>26/27學年 第七屆紅藍舞台報名表</title>
   <style>
     body { margin: 0; background: #fff; color: #111; font-family: "PingFang HK", "Microsoft JhengHei", Arial, sans-serif; font-size: 16px; line-height: 1.6; }
     .wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 40px; }
@@ -39,7 +39,7 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>6/27學年 第七屆紅藍舞台報名表</h1>
+    <h1>26/27學年 第七屆紅藍舞台報名表</h1>
     <p class="info">
       歡迎大家參加第八屆紅藍舞台～<br>
       日期：1月25日（星期一）<br>
@@ -98,7 +98,7 @@
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-    var APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQ5eKkLBAkdRsG_JApzh5OMHV7oJ-Pym7_EK1_avs7nktrjbsgrwzAGTULQPIaFYyWS-CNcQOfVt50ouMdAeKPkND6QDvcqp0X0TPZKKjA-SVrnV2yNrfOziZD5mIc2EEUAChesSKivx5wLG00xRSO6Lchelp5pAfp4x_2MY1ctjWaw_mNDn2UpVd0fxslrd-etIF4gI0qQAKy31ndhbVORXlrNMoJVUwsCp4yp2H97Gk9en9P-ijTty9G8CEUbV8gyNkVEtNAdwpjKvSk&lib=Ma8skTlWbxSkkMX5EUG9X_MImOQyPd-9o";
+    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCcwpUt1j_JTa6aXTRiQ2dL4UCtCT5RzvRpE7buBozuxHC2Q3sB8bhzc8HkIT22yUl/exec";
     var GOOGLE_CLIENT_ID = "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com";
     var googleAuthClient = null;
     var loggedEmail = "";
@@ -179,12 +179,8 @@
       var btn = document.getElementById("submitBtn");
       btn.disabled = true;
       btn.innerText = "提交中...";
-      fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "submitRegistration", payload: data })
-      }).then(function(r) { return r.json(); }).then(function(res) {
+      var url = APPS_SCRIPT_URL + "?action=submitRegistration&payload=" + encodeURIComponent(JSON.stringify(data));
+      fetch(url).then(function(r) { return r.json(); }).then(function(res) {
         btn.disabled = false;
         btn.innerText = "提交";
         show((res && res.message) || "提交失敗", !(res && res.success));
