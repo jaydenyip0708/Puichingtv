@@ -5,94 +5,156 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>26/27學年 第七屆紅藍舞台報名表</title>
   <style>
-    body { margin: 0; background: #fff; color: #111; font-family: "PingFang HK", "Microsoft JhengHei", Arial, sans-serif; font-size: 16px; line-height: 1.6; }
-    .wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 40px; }
-    h1 { font-size: 24px; margin: 0 0 8px; }
-    .info { margin: 0 0 16px; }
-    .rule { border: 1px solid #111; padding: 10px 12px; margin: 12px 0 20px; font-weight: 700; }
-    form { border-top: 1px solid #ddd; padding-top: 8px; }
-    label.field { display: block; font-weight: 700; margin: 18px 0 6px; }
-    .req { color: #c00; }
-    .hint { font-weight: 400; color: #555; font-size: 13px; }
-    input[type="text"], input[type="email"], input[type="tel"], textarea {
-      width: 100%; border: none; border-bottom: 1px solid #bbb; padding: 8px 2px; font-size: 16px; font-family: inherit; background: transparent;
-    }
-    textarea { min-height: 72px; border: 1px solid #ddd; padding: 8px; }
-    .checks { margin-top: 6px; }
-    .check { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-    .check input { width: 18px; height: 18px; }
-    .other { display: flex; align-items: center; gap: 8px; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f5f8; color: #10243f; font-family: "PingFang HK", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif; font-size: 16px; line-height: 1.65; }
+    .top { background: #10243f; color: #fff; }
+    .top-inner { max-width: 760px; margin: 0 auto; padding: 22px 20px 20px; }
+    .kicker { margin: 0 0 6px; font-size: 13px; letter-spacing: .08em; opacity: .8; }
+    h1 { font-size: 26px; line-height: 1.3; margin: 0; font-weight: 700; }
+    .sub { margin: 6px 0 0; font-size: 15px; opacity: .9; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 18px 16px 48px; }
+    .panel { background: #fff; border: 1px solid #d7dee8; margin-bottom: 14px; }
+    .panel-h { background: #10243f; color: #fff; font-size: 15px; font-weight: 700; padding: 8px 16px; }
+    .panel-b { padding: 16px; }
+    .facts { width: 100%; border-collapse: collapse; }
+    .facts th, .facts td { text-align: left; padding: 8px 0; border-bottom: 1px solid #e6ebf2; vertical-align: top; }
+    .facts th { width: 88px; color: #5b6b80; font-weight: 600; }
+    .facts tr:last-child th, .facts tr:last-child td { border-bottom: none; }
+    .copy { margin: 0; }
+    .rule { border-left: 4px solid #10243f; background: #f7f9fc; padding: 10px 12px; margin: 0; font-weight: 700; }
+    label.field { display: block; font-weight: 700; margin: 0 0 6px; }
+    .req { color: #b42318; margin-left: 2px; }
+    .hint { display: block; font-weight: 400; color: #5b6b80; font-size: 13px; margin-top: 2px; }
+    .row { margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    input[type="text"], input[type="tel"], textarea { width: 100%; border: 1px solid #c5ceda; padding: 9px 10px; font-size: 16px; font-family: inherit; background: #fff; color: #111; }
+    input:focus, textarea:focus { outline: 2px solid #10243f; outline-offset: 0; border-color: #10243f; }
+    textarea { min-height: 88px; }
+    .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+    .check { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .check input { width: 16px; height: 16px; accent-color: #10243f; }
+    .other { grid-column: 1 / -1; }
     .other input[type="text"] { flex: 1; }
-    #loginGate { margin: 24px 0; }
-    #googleLogin {
-      width: 100%; border: none; background: #f3f4f8; color: #3c4043;
-      border-radius: 999px; padding: 14px 18px; font-size: 16px; font-weight: 500;
-      display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
-    }
+    #googleLogin { width: 100%; max-width: 360px; border: 1px solid #c5ceda; background: #fff; color: #3c4043; padding: 12px 16px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
     #form { display: none; }
-    #submitBtn { margin-top: 22px; background: #111; color: #fff; border: none; padding: 10px 18px; font-size: 16px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    #submitBtn, #newBtn { background: #10243f; color: #fff; border: 1px solid #10243f; padding: 10px 18px; font-size: 16px; cursor: pointer; }
+    #newBtn { background: #fff; color: #10243f; }
     button:disabled { opacity: .5; }
-    .msg { margin-top: 12px; display: none; }
-    .msg.ok { display: block; color: #065f46; }
-    .msg.err { display: block; color: #991b1b; }
+    .msg { display: none; margin-top: 12px; padding: 12px; border: 1px solid #10243f; background: #fff; }
+    .msg.show { display: block; }
+    .msg.err { border-color: #b42318; color: #b42318; font-weight: 700; }
+    .status { display: none; border: 1px solid #10243f; background: #fff; padding: 10px 12px; margin: 0 0 14px; }
+    .status.show { display: block; }
+    .account { margin-top: 10px; color: #10243f; }
+    .foot { color: #5b6b80; font-size: 13px; margin: 8px 0 0; }
+    @media (max-width: 640px) {
+      h1 { font-size: 22px; }
+      .grid, .checks { grid-template-columns: 1fr; }
+      .actions button { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>26/27學年 第七屆紅藍舞台報名表</h1>
-    <p class="info">
-      歡迎大家參加第八屆紅藍舞台～<br>
-      日期：1月25日（星期一）<br>
-      時間：17:30<br>
-      地點：H8禮堂<br>
-      活動對象：兩校部師生，校友<br><br>
-      表現形式及題材不限！請大家盡情發揮你嘅創意 展現你獨特的腦迴路<br>
-      只有你諗唔到 冇我地做唔到<br>
-      歡迎校友/032/188既紅藍兒女報名，無論係個人或組隊都冇問題<br>
-      歡迎大家積極參與 期待見到你哋
-    </p>
-    <div class="rule">不過要留意，今年每人只能參加最多兩組組別（不限個人或團隊）</div>
-    <p>這份表單會收集所有作答者的電子郵件地址。請先用 @g.puiching.edu.mo 登入。</p>
-
-    <div id="loginGate">
-      <button type="button" id="googleLogin" onclick="doGoogleLogin()">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.6 7.1l6.3 5.3C37.4 38.3 44 34 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
-        Log in with Google
-      </button>
-      <div id="loginEmail" class="hint"></div>
+  <header class="top">
+    <div class="top-inner">
+      <p class="kicker">26/27 學年</p>
+      <h1>第七屆紅藍舞台報名表</h1>
+      <p class="sub">歡迎大家參加第八屆紅藍舞台</p>
     </div>
+  </header>
+  <div class="wrap">
+    <section class="panel">
+      <div class="panel-h">活動資料</div>
+      <div class="panel-b">
+        <table class="facts">
+          <tr><th>日期</th><td>1月25日（星期一）</td></tr>
+          <tr><th>時間</th><td>17:30</td></tr>
+          <tr><th>地點</th><td>H8 禮堂</td></tr>
+          <tr><th>對象</th><td>兩校部師生、校友</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h">報名說明</div>
+      <div class="panel-b">
+        <p class="copy">
+          表現形式及題材不限。請大家盡情發揮創意。<br>
+          歡迎校友、032、188 報名，個人或組隊都可以。
+        </p>
+        <p class="rule">每人最多只能參加兩組（不限個人或團隊）。</p>
+        <p class="foot">請先用 @g.puiching.edu.mo 登入。本表會收集作答者的電子郵件地址。</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h">登入</div>
+      <div class="panel-b" id="loginGate">
+        <button type="button" id="googleLogin" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.6 7.1l6.3 5.3C37.4 38.3 44 34 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
+          Log in with Google
+        </button>
+        <div class="account" id="loginEmail"></div>
+        <div class="msg" id="loginMsg"></div>
+      </div>
+    </section>
+
+    <div class="status" id="statusBox"></div>
 
     <form id="form">
-      <label class="field">組長姓名 <span class="req">*</span></label>
-      <input type="text" name="leaderName" required>
+      <section class="panel">
+        <div class="panel-h">組長資料</div>
+        <div class="panel-b">
+          <div class="row">
+            <label class="field">組長姓名 <span class="req">*</span></label>
+            <input type="text" name="leaderName" required>
+          </div>
+          <div class="row">
+            <label class="field">組長班別或級社 <span class="req">*</span><span class="hint">例：S6A / 恩社。校友填級社，在讀同學填班級。</span></label>
+            <input type="text" name="leaderClass" required>
+          </div>
+          <div class="grid">
+            <div class="row">
+              <label class="field">組長聯絡電話 <span class="req">*</span></label>
+              <input type="tel" name="phone" required>
+            </div>
+            <div class="row">
+              <label class="field">組長 WeChat ID <span class="req">*</span></label>
+              <input type="text" name="wechat" required>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <label class="field">組長班別或級社 <span class="req">*</span><br><span class="hint">例：S6A/恩社（校友填寫級社／在讀同學填班級）</span></label>
-      <input type="text" name="leaderClass" required>
-
-      <label class="field">組長聯絡電話 <span class="req">*</span></label>
-      <input type="tel" name="phone" required>
-
-      <label class="field">組長WeChat id <span class="req">*</span></label>
-      <input type="text" name="wechat" required>
-
-      <label class="field">組員姓名及班別 <span class="req">*</span><br><span class="hint">例：XXX XXX S6A, XXX S6C。個人參賽可填「個人」</span></label>
-      <textarea name="members" required></textarea>
-
-      <label class="field">表演內容 <span class="req">*</span></label>
-      <div class="checks">
-        <label class="check"><input type="checkbox" name="performance" value="唱歌"> 唱歌</label>
-        <label class="check"><input type="checkbox" name="performance" value="跳舞"> 跳舞</label>
-        <label class="check"><input type="checkbox" name="performance" value="變魔術"> 變魔術</label>
-        <label class="check"><input type="checkbox" name="performance" value="寵物表演"> 寵物表演</label>
-        <label class="check"><input type="checkbox" name="performance" value="廚藝表演"> 廚藝表演</label>
-        <label class="check"><input type="checkbox" name="performance" value="樂器表演"> 樂器表演</label>
-        <label class="check other"><input type="checkbox" name="performance" value="其他" id="otherCheck"> 其他：<input type="text" id="otherText" placeholder="請填寫"></label>
-      </div>
-
-      <input type="hidden" name="email" id="email">
-
-      <button type="submit" id="submitBtn">提交</button>
-      <div class="msg" id="msg"></div>
+      <section class="panel">
+        <div class="panel-h">組員及表演</div>
+        <div class="panel-b">
+          <div class="row">
+            <label class="field">組員姓名及班別 <span class="req">*</span><span class="hint">例：XXX XXX S6A, XXX S6C。個人參賽可填「個人」。</span></label>
+            <textarea name="members" required></textarea>
+          </div>
+          <div class="row">
+            <label class="field">表演內容 <span class="req">*</span></label>
+            <div class="checks">
+              <label class="check"><input type="checkbox" name="performance" value="唱歌"> 唱歌</label>
+              <label class="check"><input type="checkbox" name="performance" value="跳舞"> 跳舞</label>
+              <label class="check"><input type="checkbox" name="performance" value="變魔術"> 變魔術</label>
+              <label class="check"><input type="checkbox" name="performance" value="寵物表演"> 寵物表演</label>
+              <label class="check"><input type="checkbox" name="performance" value="廚藝表演"> 廚藝表演</label>
+              <label class="check"><input type="checkbox" name="performance" value="樂器表演"> 樂器表演</label>
+              <label class="check other"><input type="checkbox" name="performance" value="其他" id="otherCheck"> 其他：<input type="text" id="otherText"></label>
+            </div>
+          </div>
+          <input type="hidden" id="email">
+          <input type="hidden" id="rowIndex">
+          <div class="actions">
+            <button type="submit" id="submitBtn">提交</button>
+            <button type="button" id="newBtn" onclick="startNew()">新增另一組</button>
+          </div>
+          <div class="msg" id="msg"></div>
+        </div>
+      </section>
     </form>
   </div>
 
@@ -100,12 +162,43 @@
   <script>
     var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCcwpUt1j_JTa6aXTRiQ2dL4UCtCT5RzvRpE7buBozuxHC2Q3sB8bhzc8HkIT22yUl/exec";
     var GOOGLE_CLIENT_ID = "842172643393-rgaomajla5lpv6013m2rrk3taurvc5c6.apps.googleusercontent.com";
+    var KEY = "redblue_stage_session";
     var googleAuthClient = null;
     var loggedEmail = "";
 
+    function show(id, text, isError) {
+      var msg = document.getElementById(id);
+      if (!msg) return;
+      msg.className = "msg" + (text ? " show" + (isError ? " err" : "") : "");
+      msg.innerText = text || "";
+    }
+
+    function saveLocal(extra) {
+      var form = document.getElementById("form");
+      var checked = Array.from(form.querySelectorAll('input[name="performance"]:checked')).map(function(el) { return el.value; });
+      var data = {
+        email: loggedEmail,
+        rowIndex: document.getElementById("rowIndex").value,
+        leaderName: form.leaderName.value,
+        leaderClass: form.leaderClass.value,
+        phone: form.phone.value,
+        wechat: form.wechat.value,
+        members: form.members.value,
+        performance: checked.map(function(item) { return item === "其他" ? "其他：" + document.getElementById("otherText").value.trim() : item; }).join("、"),
+        updatedAt: new Date().toISOString()
+      };
+      if (extra) Object.keys(extra).forEach(function(k) { data[k] = extra[k]; });
+      try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+    }
+
+    function readLocal() {
+      try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; }
+    }
+
     function doGoogleLogin() {
+      show("loginMsg", "", false);
       if (!window.google || !google.accounts || !google.accounts.oauth2) {
-        show("Google 服務尚未載入，請重新整理", true);
+        show("loginMsg", "Google 服務尚未載入，請重新整理", true);
         return;
       }
       if (!googleAuthClient) {
@@ -114,7 +207,7 @@
           scope: "openid email profile",
           callback: function(tokenResponse) {
             if (!tokenResponse || tokenResponse.error || !tokenResponse.access_token) {
-              show("登入已取消", true);
+              show("loginMsg", "登入已取消", true);
               return;
             }
             fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
@@ -124,18 +217,20 @@
               if (!email.endsWith("@g.puiching.edu.mo")) {
                 loggedEmail = "";
                 document.getElementById("email").value = "";
-                document.getElementById("loginEmail").innerText = "";
-                show("沒有權限", true);
+                document.getElementById("form").style.display = "none";
+                document.getElementById("loginEmail").innerText = email ? ("目前帳號：" + email) : "";
+                show("loginMsg", "沒有權限", true);
                 return;
               }
               loggedEmail = email;
               document.getElementById("email").value = email;
               document.getElementById("loginEmail").innerText = "已登入：" + email;
+              show("loginMsg", "", false);
               document.getElementById("form").style.display = "block";
-              document.getElementById("googleLogin").style.display = "none";
-              show("", false);
+              document.getElementById("googleLogin").innerText = "切換 Google 帳號";
+              loadLatest(email);
             }).catch(function() {
-              show("無法取得帳號資料", true);
+              show("loginMsg", "無法取得帳號資料", true);
             });
           }
         });
@@ -143,30 +238,86 @@
       googleAuthClient.requestAccessToken({ prompt: "select_account" });
     }
 
+    function loadLatest(email) {
+      var status = document.getElementById("statusBox");
+      status.className = "status show";
+      status.innerText = "正在讀取你的報名紀錄...";
+      fetch(APPS_SCRIPT_URL + "?action=getMyRegistration&email=" + encodeURIComponent(email))
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (res && res.success && res.data) {
+            fillForm(res.data);
+            saveLocal();
+            status.innerText = "這是你最新的報名進度，可以修改後再更新。已報名 " + (res.count || 1) + " 組。";
+            return;
+          }
+          var local = readLocal();
+          if (local && local.email === email && (local.leaderName || local.members || local.performance)) {
+            fillForm(local);
+            status.innerText = "這部裝置有上次未完成或最新進度，可以繼續修改後提交。";
+            return;
+          }
+          status.className = "status";
+        }).catch(function() {
+          var local = readLocal();
+          if (local && local.email === email) {
+            fillForm(local);
+            status.className = "status show";
+            status.innerText = "暫時讀不到伺服器，已顯示這部裝置的最新進度。";
+          } else {
+            status.className = "status";
+          }
+        });
+    }
 
+    function fillForm(item) {
+      var form = document.getElementById("form");
+      form.leaderName.value = item.leaderName || "";
+      form.leaderClass.value = item.leaderClass || "";
+      form.phone.value = item.phone || "";
+      form.wechat.value = item.wechat || "";
+      form.members.value = item.members || "";
+      document.getElementById("rowIndex").value = item.rowIndex || "";
+      document.getElementById("submitBtn").innerText = item.rowIndex ? "更新進度" : "提交";
+      var parts = String(item.performance || "").split("、");
+      form.querySelectorAll('input[name="performance"]').forEach(function(box) { box.checked = false; });
+      document.getElementById("otherText").value = "";
+      parts.forEach(function(part) {
+        if (!part) return;
+        if (part.indexOf("其他：") === 0) {
+          document.getElementById("otherCheck").checked = true;
+          document.getElementById("otherText").value = part.replace("其他：", "");
+        } else {
+          var box = form.querySelector('input[name="performance"][value="' + part + '"]');
+          if (box) box.checked = true;
+        }
+      });
+    }
+
+    function startNew() {
+      document.getElementById("rowIndex").value = "";
+      document.getElementById("submitBtn").innerText = "提交";
+      document.getElementById("statusBox").className = "status show";
+      document.getElementById("statusBox").innerText = "正在新增另一組。每人最多兩組。";
+    }
+
+    document.getElementById("form").addEventListener("input", function() { if (loggedEmail) saveLocal(); });
     document.getElementById("form").addEventListener("submit", function(e) {
       e.preventDefault();
       var form = e.target;
       var checked = Array.from(form.querySelectorAll('input[name="performance"]:checked')).map(function(el) { return el.value; });
       var other = document.getElementById("otherText").value.trim();
-      if (!checked.length) {
-        show("請選擇表演內容", true);
-        return;
-      }
-      if (checked.indexOf("其他") !== -1 && !other) {
-        show("選擇「其他」請填寫內容", true);
-        return;
-      }
-      var performance = checked.map(function(item) {
-        return item === "其他" ? "其他：" + other : item;
-      }).join("、");
-
-      var email = loggedEmail || document.getElementById("email").value.trim().toLowerCase();
-      if (!email || !email.endsWith("@g.puiching.edu.mo")) {
-        show("沒有權限", true);
+      if (!checked.length) { show("msg", "請選擇表演內容", true); return; }
+      if (checked.indexOf("其他") !== -1 && !other) { show("msg", "選擇「其他」請填寫內容", true); return; }
+      var performance = checked.map(function(item) { return item === "其他" ? "其他：" + other : item; }).join("、");
+      var email = (loggedEmail || "").toLowerCase();
+      if (!email.endsWith("@g.puiching.edu.mo")) {
+        document.getElementById("form").style.display = "none";
+        show("loginMsg", "沒有權限", true);
         return;
       }
       var data = {
+        rowIndex: document.getElementById("rowIndex").value,
         leaderName: form.leaderName.value.trim(),
         leaderClass: form.leaderClass.value.trim(),
         phone: form.phone.value.trim(),
@@ -175,27 +326,31 @@
         performance: performance,
         email: email
       };
-
+      saveLocal(data);
       var btn = document.getElementById("submitBtn");
       btn.disabled = true;
       btn.innerText = "提交中...";
-      var url = APPS_SCRIPT_URL + "?action=submitRegistration&payload=" + encodeURIComponent(JSON.stringify(data));
-      fetch(url).then(function(r) { return r.json(); }).then(function(res) {
-        btn.disabled = false;
-        btn.innerText = "提交";
-        show((res && res.message) || "提交失敗", !(res && res.success));
-        if (res && res.success) form.reset();
-      }).catch(function(err) {
-        btn.disabled = false;
-        btn.innerText = "提交";
-        show("提交失敗：" + err, true);
-      });
+      fetch(APPS_SCRIPT_URL + "?action=submitRegistration&payload=" + encodeURIComponent(JSON.stringify(data)))
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          btn.disabled = false;
+          btn.innerText = data.rowIndex ? "更新進度" : "提交";
+          show("msg", (res && res.message) || "提交失敗", !(res && res.success));
+          if (res && res.success && res.rowIndex) {
+            document.getElementById("rowIndex").value = res.rowIndex;
+            btn.innerText = "更新進度";
+            saveLocal();
+          }
+        }).catch(function(err) {
+          btn.disabled = false;
+          btn.innerText = "提交";
+          show("msg", "提交失敗：" + err, true);
+        });
     });
 
-    function show(text, isError) {
-      var msg = document.getElementById("msg");
-      msg.className = "msg " + (isError ? "err" : "ok");
-      msg.innerText = text;
+    var saved = readLocal();
+    if (saved && saved.email) {
+      document.getElementById("loginEmail").innerText = "這部裝置上次使用：" + saved.email + "。請再登入以載入最新進度。";
     }
   </script>
 </body>
