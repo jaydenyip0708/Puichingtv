@@ -72,6 +72,7 @@
           <tr><th>時間</th><td>17:30</td></tr>
           <tr><th>地點</th><td>H8 禮堂</td></tr>
           <tr><th>對象</th><td>兩校部師生、校友</td></tr>
+          <tr><th>截止</th><td id="deadlineText">讀取中...</td></tr>
         </table>
       </div>
     </section>
@@ -165,6 +166,35 @@
     var KEY = "redblue_stage_session";
     var googleAuthClient = null;
     var loggedEmail = "";
+    var deadlineClosed = false;
+
+    function applyDeadline(info) {
+      var text = (info && info.deadline) ? info.deadline : "未設定";
+      deadlineClosed = !!(info && info.closed);
+      var el = document.getElementById("deadlineText");
+      if (el) el.innerText = text + (deadlineClosed ? "（已截止）" : "");
+      var form = document.getElementById("form");
+      if (!form) return;
+      Array.from(form.querySelectorAll("input, textarea, button")).forEach(function(node) {
+        if (node.id === "email" || node.id === "rowIndex") return;
+        node.disabled = deadlineClosed;
+      });
+      if (deadlineClosed) {
+        var status = document.getElementById("statusBox");
+        status.className = "status show";
+        status.innerText = "已過修改／呈交截止日期（" + text + "）。";
+      }
+    }
+
+    function loadDeadline() {
+      fetch(APPS_SCRIPT_URL + "?action=getDeadline")
+        .then(function(r) { return r.json(); })
+        .then(function(res) { applyDeadline(res || {}); })
+        .catch(function() {
+          var el = document.getElementById("deadlineText");
+          if (el) el.innerText = "讀取失敗";
+        });
+    }
 
     function show(id, text, isError) {
       var msg = document.getElementById(id);
@@ -245,10 +275,13 @@
       fetch(APPS_SCRIPT_URL + "?action=getMyRegistration&email=" + encodeURIComponent(email))
         .then(function(r) { return r.json(); })
         .then(function(res) {
+          if (res && res.deadline) applyDeadline(res);
           if (res && res.success && res.data) {
             fillForm(res.data);
             saveLocal();
-            status.innerText = "這是你最新的報名進度，可以修改後再更新。已報名 " + (res.count || 1) + " 組。";
+            status.innerText = deadlineClosed
+              ? "已過截止日期，以下只可查看。"
+              : "這是你最新的報名進度，可以修改後再更新。已報名 " + (res.count || 1) + " 組。";
             return;
           }
           var local = readLocal();
@@ -310,6 +343,7 @@
       if (!checked.length) { show("msg", "請選擇表演內容", true); return; }
       if (checked.indexOf("其他") !== -1 && !other) { show("msg", "選擇「其他」請填寫內容", true); return; }
       var performance = checked.map(function(item) { return item === "其他" ? "其他：" + other : item; }).join("、");
+      if (deadlineClosed) { show("msg", "已過修改／呈交截止日期", true); return; }
       var email = (loggedEmail || "").toLowerCase();
       if (!email.endsWith("@g.puiching.edu.mo")) {
         document.getElementById("form").style.display = "none";
@@ -348,6 +382,7 @@
         });
     });
 
+    loadDeadline();
     var saved = readLocal();
     if (saved && saved.email) {
       document.getElementById("loginEmail").innerText = "這部裝置上次使用：" + saved.email + "。請再登入以載入最新進度。";
